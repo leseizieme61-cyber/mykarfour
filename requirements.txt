@@ -1,6 +1,6 @@
 # ==========================================
 # REQUIREMENTS FOR AZURE DEPLOYMENT
-# Versions stables et optimisées pour production
+# Versions stables et compatibles Azure
 # ==========================================
 
 # ===============================
@@ -24,7 +24,7 @@ django-extensions==4.1
 django-environ==0.12.0
 
 # ===============================
-# IA / ML (CPU ONLY – compatible Azure)
+# IA / ML (AZURE SAFE)
 # ===============================
 openai==1.52.0
 
@@ -35,8 +35,8 @@ langchain-openai==0.3.35
 
 transformers==4.41.2
 
-# ⚠️ PyTorch CPU uniquement (PAS de CUDA)
-torch==2.8.0+cpu
+# ⚠️ VERSION STANDARD (CPU automatique sur Azure)
+torch==2.8.0
 
 sentence-transformers==5.1.1
 chromadb==1.1.1
