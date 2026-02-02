@@ -16,7 +16,7 @@ DEBUG = True
 
 APPEND_SLASH = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['mykarfour.azurewebsites.net']
 
 CSRF_TRUSTED_ORIGINS = [
     "https://c9d34914b191.ngrok-free.app"
