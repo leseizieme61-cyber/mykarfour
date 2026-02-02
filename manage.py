@@ -5,7 +5,7 @@ import sys
 def main():
     """Run administrative tasks."""
     settings_module = 'mykarfour_app.deployment' if os.environ.get('WEBSITE_HOSTNAME') else 'mykarfour_app.settings'
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mykarfour_app.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
