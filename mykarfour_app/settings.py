@@ -137,7 +137,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 # Configuration de l'API IA
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-OPENAI_API_KEY = env('OPENAI_API_KEY')
+OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
 
 
 # IA_API_URL = 'https://api.openai.com/v1/completions'
