@@ -13,16 +13,16 @@ jobs:
       contents: read
 
     steps:
-      # 1️⃣ Checkout code
+      # 1️⃣ Checkout du code
       - uses: actions/checkout@v4
 
       # 2️⃣ Setup Python
-      - name: Set up Python version
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      # 3️⃣ Cache pip
+      # 3️⃣ Cache pip pour accélérer l'installation
       - name: Cache pip
         uses: actions/cache@v3
         with:
@@ -31,28 +31,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # 4️⃣ Install dependencies
+      # 4️⃣ Installer les dépendances
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
 
-      # 5️⃣ Run Django migrations
-      - name: Run migrations
+      # 5️⃣ Définir les variables d'environnement nécessaires
+      - name: Set environment variables
         run: |
-          python manage.py migrate --noinput
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
 
-      # 6️⃣ Collect static files
+      # 6️⃣ Exécuter les migrations
+      - name: Run Django migrations
+        run: python manage.py migrate --noinput
+
+      # 7️⃣ Collecter les fichiers statiques
       - name: Collect static files
-        run: |
-          python manage.py collectstatic --noinput
+        run: python manage.py collectstatic --noinput
 
-      # 7️⃣ Archive project
+      # 8️⃣ Archiver le projet pour le déploiement
       - name: Archive project
         run: zip -r myapp.zip . -x "*.git*" "*.venv*" "__pycache__/*"
 
-      # 8️⃣ Upload artifact for deployment
-      - name: Upload artifact for deployment
+      # 9️⃣ Upload de l'artefact pour le déploiement
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: python-app
@@ -63,16 +68,15 @@ jobs:
     needs: build
 
     steps:
-      # 1️⃣ Download artifact
-      - name: Download artifact from build job
+      # 1️⃣ Télécharger l'artefact du build
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: python-app
 
-      # 2️⃣ Deploy to Azure Web App
+      # 2️⃣ Déployer sur Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
           app-name: 'mykarfour'
           slot-name: 'Production'
