@@ -3,14 +3,18 @@
 # Versions stables et optimisées pour production
 # ==========================================
 
-# Core Django - Versions LTS stables
+# ===============================
+# Core Django
+# ===============================
 Django==5.0.3
 gunicorn==21.2.0
 whitenoise==6.6.0
-dj-database-url==2.1.0
+dj-database-url==2.2.0
 psycopg2-binary==2.9.9
 
-# Django Extensions - Versions compatibles
+# ===============================
+# Django Extensions
+# ===============================
 django-bootstrap5==25.2
 django-crispy-forms==2.4
 django-cors-headers==4.3.1
@@ -19,44 +23,63 @@ djangorestframework-simplejwt==5.3.1
 django-extensions==4.1
 django-environ==0.12.0
 
-# IA/ML - Versions production optimisées
-openai==1.30.1
-langchain==0.2.16
-langchain-community==0.2.16
-langchain-core==0.2.40
-langchain-openai==0.1.25
-transformers==4.40.2
-torch==2.3.0
-chromadb==0.5.5
-tiktoken==0.7.0
-sentence-transformers==2.7.0
+# ===============================
+# IA / ML (CPU ONLY – compatible Azure)
+# ===============================
+openai==1.52.0
 
-# Async/Celery - Versions stables
-celery==5.3.4
-redis==5.0.4
+langchain==0.3.27
+langchain-core==0.3.79
+langchain-community==0.3.31
+langchain-openai==0.3.35
+
+transformers==4.41.2
+
+# ⚠️ PyTorch CPU uniquement (PAS de CUDA)
+torch==2.8.0+cpu
+
+sentence-transformers==5.1.1
+chromadb==1.1.1
+tiktoken==0.12.0
+
+# ===============================
+# Async / Celery / WebSockets
+# ===============================
+celery==5.4.0
+redis==5.0.5
 channels==4.1.0
 channels-redis==4.2.0
-daphne==4.1.0
+daphne==4.1.2
 
-# Utilities - Versions production
-pillow==10.3.0
-python-dotenv==1.0.1
-requests==2.31.0
-PyJWT==2.8.0
-pydantic==2.7.4
-pydantic-settings==2.3.0
+# ===============================
+# Utilities
+# ===============================
+pillow==11.3.0
+python-dotenv==1.1.1
+requests==2.32.5
+PyJWT==2.10.1
+pydantic==2.11.9
+pydantic-settings==2.11.0
 
-# Audio/Text
-gTTS==2.5.2
+# ===============================
+# Audio / Texte
+# ===============================
+gTTS==2.5.4
 
-# Development/Production
-uvicorn==0.29.0
+# ===============================
+# ASGI / Serveur
+# ===============================
+uvicorn==0.37.0
 
+# ===============================
 # Azure spécifique
+# ===============================
 azure-storage-blob==12.20.0
 azure-identity==1.16.1
 
-# Monitoring et logging
+# ===============================
+# Monitoring & Logging
+# ===============================
 azure-monitor-opentelemetry==1.6.0
 opentelemetry-api==1.25.0
 opentelemetry-sdk==1.25.0
