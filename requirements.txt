@@ -1,15 +1,10 @@
-# ===============================
-# Core Django
-# ===============================
 Django==5.0.3
-gunicorn
-whitenoise
-dj-database-url
-psycopg2-binary
+gunicorn==21.2.0
+whitenoise==6.6.0
+dj-database-url==2.2.0
+psycopg2-binary==2.9.9
 
-# ===============================
-# Extensions Django
-# ===============================
+
 django-bootstrap5==25.2
 django-crispy-forms==2.4
 django-cors-headers==4.3.1
@@ -18,10 +13,9 @@ djangorestframework-simplejwt==5.3.1
 django-extensions==4.1
 django-environ==0.12.0
 
-# ===============================
-# IA / ML (CPU uniquement)
-# ===============================
+
 openai==2.3.0
+
 
 langchain==0.3.27
 langchain-community==0.3.31
@@ -37,18 +31,14 @@ sentence-transformers==5.1.1
 chromadb==1.1.1
 tiktoken==0.12.0
 
-# ===============================
-# Async / Celery / WebSockets
-# ===============================
-celery
-redis
-channels
-channels-redis
-daphne
 
-# ===============================
-# Utilitaires
-# ===============================
+celery==5.4.0
+redis==5.0.1
+channels==4.1.0
+channels-redis==4.2.0
+daphne==4.1.2
+
+
 pillow==11.3.0
 python-dotenv==1.1.1
 requests==2.32.5
@@ -56,12 +46,8 @@ PyJWT==2.10.1
 pydantic==2.11.9
 pydantic-settings==2.11.0
 
-# ===============================
-# Audio / Texte
-# ===============================
+
 gTTS==2.5.4
 
-# ===============================
-# Développement / ASGI
-# ===============================
+
 uvicorn==0.37.0
