@@ -26,7 +26,7 @@ django-environ==0.12.0
 # ===============================
 # IA / ML (AZURE SAFE)
 # ===============================
-openai==1.52.0
+openai==1.104.2
 
 langchain==0.3.27
 langchain-core==0.3.79
@@ -83,3 +83,4 @@ azure-identity==1.16.1
 azure-monitor-opentelemetry==1.6.0
 opentelemetry-api==1.25.0
 opentelemetry-sdk==1.25.0
+
