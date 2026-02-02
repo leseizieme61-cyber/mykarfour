@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil Parent - Suivi des enfants{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- En-tête du profil -->
+    <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+        <img src="{% static 'img/couverture.jpg' %}" alt="Cover" class="w-full object-cover">
+        <div class="p-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Profil Parent</h1>
+                <p class="text-gray-600">Suivez la progression de vos enfants</p>
+            </div>
+            <div>
+                <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                    Parent
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Colonne gauche : Informations du parent -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Carte informations parent -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-user text-[#0EA7A7] mr-2"></i>Mon profil
+                </h2>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+                        <p class="text-gray-900 font-medium">{{ user.get_full_name }}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <p class="text-gray-900 font-medium">{{ user.email }}</p>
+                    </div>
+                    
+                    {% for field in form %}
+                    <div class="mb-4">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-red-500 text-sm mt-1">
+                            {{ field.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="w-full bg-[#0EA7A7] hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        <i class="fas fa-save mr-2"></i>Mettre à jour
+                    </button>
+                </form>
+            </div>
+
+            <!-- Carte accès rapide -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-external-link-alt text-[#0EA7A7] mr-2"></i>Accès rapide
+                </h2>
+                
+                <div class="space-y-3">
+                    <a href="{% url 'parent_dashboard' %}" class="flex items-center text-gray-700 hover:text-[#0EA7A7] transition duration-300 p-3 rounded-lg hover:bg-blue-50">
+                        <i class="fas fa-tachometer-alt mr-3 text-gray-400"></i>
+                        <span>Tableau de bord complet</span>
+                    </a>
+                    
+                    <a href="{% url 'parent_generer_rapport' %}" class="flex items-center text-gray-700 hover:text-[#0EA7A7] transition duration-300 p-3 rounded-lg hover:bg-blue-50">
+                        <i class="fas fa-file-pdf mr-3 text-gray-400"></i>
+                        <span>Générer rapport PDF</span>
+                    </a>
+                    
+                    <a href="{% url 'cours:list' %}" class="flex items-center text-gray-700 hover:text-[#0EA7A7] transition duration-300 p-3 rounded-lg hover:bg-blue-50">
+                        <i class="fas fa-book mr-3 text-gray-400"></i>
+                        <span>Voir tous les cours</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite : Suivi des enfants -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Statistiques globales -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-friends text-blue-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Enfants</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats_parent.total_enfants }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-star text-yellow-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Moyenne générale</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats_parent.moyenne_generale }}/5</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Quiz réussis</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats_parent.quiz_reussis }}/{{ stats_parent.total_quiz }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chart-line text-purple-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Taux de réussite</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats_parent.taux_reussite }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progression par enfant -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <i class="fas fa-user-graduate text-[#0EA7A7] mr-2"></i>Progression des enfants
+                    </h2>
+                </div>
+                
+                {% if enfants_data %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for enfant in enfants_data %}
+                    <div class="border border-gray-200 rounded-lg p-5 hover:shadow-lg transition duration-300">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">
+                                    {{ enfant.eleve.user.get_full_name|default:enfant.eleve.user.username }}
+                                </h3>
+                                <p class="text-sm text-gray-600">
+                                    {{ enfant.eleve.get_niveau_display }} - {{ enfant.eleve.classe }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-600">{{ enfant.moyenne }}/5</div>
+                                <p class="text-xs text-gray-500">Moyenne</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600">{{ enfant.quiz_count }}</div>
+                                <p class="text-xs text-gray-500">Quiz</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600">{{ enfant.cours_count }}</div>
+                                <p class="text-xs text-gray-500">Cours</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Dernières activités -->
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600 mb-2">Dernière activité :</p>
+                            {% if enfant.derniere_evaluation %}
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                <span class="text-sm text-gray-800 truncate">
+                                    {{ enfant.derniere_evaluation.cours.titre|truncatechars:25 }}
+                                </span>
+                                <span class="ml-auto px-2 py-1 text-xs font-medium rounded-full {% if enfant.derniere_evaluation.note >= 4 %}bg-green-100 text-green-800{% elif enfant.derniere_evaluation.note >= 3 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ enfant.derniere_evaluation.note }}/5
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if enfant.dernier_quiz %}
+                            <div class="flex items-center">
+                                <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+                                <span class="text-sm text-gray-800 truncate">
+                                    {{ enfant.dernier_quiz.quiz.titre|truncatechars:25 }}
+                                </span>
+                                <span class="ml-auto px-2 py-1 text-xs font-medium rounded-full {% if enfant.dernier_quiz.score >= 80 %}bg-green-100 text-green-800{% elif enfant.dernier_quiz.score >= 60 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ enfant.dernier_quiz.score }}%
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Actions rapides -->
+                        <div class="flex space-x-2">
+                            {% if enfant.eleve and enfant.eleve.id %}
+                            <a href="{% url 'parent_evaluations_detail' enfant.eleve.id %}" class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium py-2 px-4 rounded-md transition duration-300 text-center">
+                                <i class="fas fa-list mr-1"></i>Évaluations
+                            </a>
+                            <a href="{% url 'parent_quiz_detail' enfant.eleve.id %}" class="flex-1 bg-green-50 hover:bg-green-100 text-green-700 font-medium py-2 px-4 rounded-md transition duration-300 text-center">
+                                <i class="fas fa-question-circle mr-1"></i>Quiz
+                            </a>
+                            {% else %}
+                            <span class="flex-1 bg-gray-100 text-gray-400 font-medium py-2 px-4 rounded-md text-center">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Non disponible
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-user-friends text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">Aucun enfant lié</h3>
+                    <p class="text-gray-500 mb-4">Ajoutez un enfant pour suivre sa progression</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Lier un enfant et Notifications -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Formulaire pour lier un enfant -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-link text-[#0EA7A7] mr-2"></i>Lier un enfant
+                    </h2>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% for field in lien_form %}
+                        <div class="mb-4">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="text-red-500 text-sm mt-1">
+                                {{ field.errors }}
+                            </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <p class="text-gray-500 text-xs mt-1">{{ field.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <button type="submit" class="w-full bg-[#0EA7A7] hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                            <i class="fas fa-user-plus mr-2"></i>Lier l'enfant
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Formulaire de notifications -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-bell text-[#0EA7A7] mr-2"></i>Notifications
+                    </h2>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="space-y-4">
+                            {% for field in notifications_form %}
+                            <div class="flex items-center justify-between">
+                                <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700">
+                                    {{ field.label }}
+                                </label>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ field }}
+                                    <span class="ml-3 text-sm font-medium text-gray-700 sr-only">{{ field.label }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <button type="submit" class="w-full mt-6 bg-[#0EA7A7] hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                            <i class="fas fa-save mr-2"></i>Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation au survol des cartes
+    const cards = document.querySelectorAll('.bg-white.rounded-lg.shadow-md');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.classList.add('shadow-lg');
+        });
+        card.addEventListener('mouseleave', () => {
+            card.classList.remove('shadow-lg');
+        });
+    });
+    
+    // Initialisation des tooltips
+    const tooltips = document.querySelectorAll('[title]');
+    tooltips.forEach(tooltip => {
+        new bootstrap.Tooltip(tooltip);
+    });
+});
+</script>
+{% endblock %}

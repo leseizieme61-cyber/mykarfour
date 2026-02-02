@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Fonctionnalités - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="py-6 px-6 max-w-6xl mx-auto">
+  <!-- Titre principal -->
+  <div class="text-center mb-16">
+    <h1 class="text-4xl font-bold text-[#0EA7A7] mb-4">Fonctionnalités clés de MyKarfour</h1>
+    <p class="text-gray-200 text-lg">Une plateforme pensée pour chaque acteur de l'apprentissage.</p>
+  </div>
+
+
+  <!-- Blocs de fonctionnalités -->
+  <div class="grid gap-10">
+
+    <!-- Espace Élève -->
+    <article class="bg-[#0EA7A7] text-white p-8 rounded-lg shadow-md border-t-4 border-white hover:shadow-xl transition">
+      <h2 class="text-2xl font-bold mb-4">🎓 Espace Élève</h2>
+      <ul class="list-disc list-inside space-y-2 text-white/90">
+        <li>Création et gestion de compte personnalisé</li>
+        <li>Soumission de l’emploi du temps scolaire (manuel ou import)</li>
+        <li>Ajout des thématiques et cours suivis en classe</li>
+        <li>Assistance IA avec rappels, quiz personnalisés et suivi de progression</li>
+        <li>Mode hors ligne et interaction vocale avec l’IA répétiteur</li>
+        <li>Gamification : badges, défis, classements</li>
+        <li>Statistiques personnelles détaillées et export PDF</li>
+      </ul>
+    </article>
+
+    <!-- Espace Parent -->
+    <article class="bg-[#FACC15] text-gray-900 p-8 rounded-lg shadow-md border-t-4 border-white hover:shadow-xl transition">
+      <h2 class="text-2xl font-bold mb-4">👨‍👩‍👧 Espace Parent</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-800">
+        <li>Tableau de bord global des élèves suivis</li>
+        <li>Consultation des progrès par matière et par élève</li>
+        <li>Notifications régulières (email, SMS, push)</li>
+        <li>Gestion des invitations et des liens parent-élève</li>
+        <li>Paramètres de confidentialité et contrôle des accès</li>
+      </ul>
+    </article>
+
+    <!-- IA Répétiteur -->
+    <article class="bg-[#0EA7A7] text-white p-8 rounded-lg shadow-md border-t-4 border-white hover:shadow-xl transition">
+      <h2 class="text-2xl font-bold mb-4">🤖 IA Répétiteur</h2>
+      <ul class="list-disc list-inside space-y-2 text-white/90">
+        <li>Analyse intelligente de l’emploi du temps</li>
+        <li>Création automatique de séances de révision</li>
+        <li>Génération de quiz adaptés aux thématiques de l’élève</li>
+        <li>Approche pédagogique progressive : indices, explications, puis correction</li>
+        <li>Mode interaction texte et vocal</li>
+        <li>Système de rappel intelligent pour ne rien oublier</li>
+      </ul>
+    </article>
+
+    <!-- Espace Administration -->
+    <article class="bg-[#FACC15] text-gray-900 p-8 rounded-lg shadow-md border-t-4 border-white hover:shadow-xl transition">
+      <h2 class="text-2xl font-bold mb-4">🛠️ Espace Administration</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-800">
+        <li>Gestion des utilisateurs (élèves, parents, enseignants)</li>
+        <li>Supervision des abonnements et paiements</li>
+        <li>Tableau de bord statistique en temps réel</li>
+        <li>Gestion des contenus pédagogiques et quiz standards</li>
+        <li>Outils d’administration et support technique</li>
+      </ul>
+    </article>
+
+    <!-- Paiement -->
+    <article class="bg-[#0EA7A7] text-white p-8 rounded-lg shadow-md border-t-4 border-white hover:shadow-xl transition">
+      <h2 class="text-2xl font-bold mb-4">💳 Abonnement & Paiement</h2>
+      <ul class="list-disc list-inside space-y-2 text-white/90">
+        <li>Formules Standard et Premium avec options différenciées</li>
+        <li>Intégration Stripe, PayPal, Mobile Money</li>
+        <li>Gestion complète des abonnements mensuels ou annuels</li>
+        <li>Historique des paiements et facturation</li>
+      </ul>
+    </article>
+
+    <!-- Services externes -->
+    <article class="bg-[#FACC15] text-gray-900 p-8 rounded-lg shadow-md border-t-4 border-white hover:shadow-xl transition">
+      <h2 class="text-2xl font-bold mb-4">🔔 Services Externes & Notifications</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-800">
+        <li>Notifications push via Firebase</li>
+        <li>Envoi d’emails par SendGrid</li>
+        <li>Envoi de SMS par Twilio</li>
+        <li>Hébergement scalable AWS / Azure / GCP</li>
+      </ul>
+    </article>
+
+  </div>
+</section>
+{% endblock %}

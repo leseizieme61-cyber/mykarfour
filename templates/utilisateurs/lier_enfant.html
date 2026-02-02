@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Lier un élève{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md mx-auto">
+    <!-- Carte du formulaire -->
+    <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+      <!-- En-tête -->
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+        <h2 class="text-xl font-bold text-white flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+          </svg>
+          Lier un élève
+        </h2>
+        <p class="text-indigo-100 text-sm mt-1">Entrez le code de parrainage de votre enfant</p>
+      </div>
+
+      <!-- Corps du formulaire -->
+      <div class="p-6">
+        {% if messages %}
+          <div class="mb-6 space-y-3">
+            {% for message in messages %}
+              <div class="{% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-700{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %} px-4 py-3 rounded-lg flex items-center justify-between">
+                <div class="flex items-center">
+                  {% if message.tags == 'success' %}
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  {% elif message.tags == 'error' %}
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  {% else %}
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  {% endif %}
+                  <span>{{ message }}</span>
+                </div>
+                <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          
+          <!-- Champ code élève -->
+          <div class="mb-6">
+            <label for="id_code_eleve" class="block text-sm font-medium text-gray-700 mb-2">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+              </svg>
+              Code parrainage de l'élève
+            </label>
+            
+            <div class="relative">
+              <input
+                type="text"
+                name="code_eleve"
+                id="id_code_eleve"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                placeholder="Ex: ABC123XYZ"
+                value="{{ form.code_eleve.value|default_if_none:'' }}"
+                required
+              />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+              </div>
+            </div>
+
+            {% for err in form.code_eleve.errors %}
+              <div class="mt-2 flex items-center text-red-600 text-sm">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ err }}
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Erreurs générales du formulaire -->
+          {% if form.non_field_errors %}
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ form.non_field_errors }}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Actions du formulaire -->
+          <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+            <button 
+              type="submit" 
+              class="flex-1 inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              </svg>
+              Lier l'élève
+            </button>
+            <a 
+              href="{% url 'profil' %}" 
+              class="flex-1 inline-flex justify-center items-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              Annuler
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Informations supplémentaires -->
+    <div class="mt-6 text-center">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 class="text-sm font-medium text-blue-800 mb-2 flex items-center justify-center">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Comment obtenir le code ?
+        </h3>
+        <p class="text-xs text-blue-600">
+          Le code de parrainage est disponible dans le profil de votre enfant sur son compte MyKarfour.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animation pour fermer les messages
+    const closeButtons = document.querySelectorAll('button[type="button"]');
+    closeButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const message = this.closest('div');
+        message.style.opacity = '0';
+        message.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          message.remove();
+        }, 300);
+      });
+    });
+
+    // Focus sur le champ de code au chargement
+    const codeInput = document.getElementById('id_code_eleve');
+    if (codeInput) {
+      codeInput.focus();
+      
+      // Conversion automatique en majuscules
+      codeInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+      });
+    }
+
+    // Validation visuelle en temps réel
+    codeInput.addEventListener('blur', function() {
+      if (this.value.length > 0 && this.value.length < 6) {
+        this.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+        this.classList.remove('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+      } else {
+        this.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+        this.classList.add('border-gray-300', 'focus:ring-indigo-500', 'focus:border-indigo-500');
+      }
+    });
+  });
+</script>
+{% endblock %}

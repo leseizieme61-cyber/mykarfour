@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Passer le Quiz - {{ quiz.titre }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- En-tête du quiz -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">{{ quiz.titre }}</h1>
+                    <p class="text-gray-600 mt-2">{{ quiz.description }}</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2 text-blue-500"></i>
+                            <span id="timer">{{ quiz.duree }}:00</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-question-circle mr-2 text-green-500"></i>
+                            <span>Question <span id="current-question">1</span>/{{ questions_count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barre de progression -->
+            <div class="mt-4">
+                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Progression</span>
+                    <span id="progression">{{ progression }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-[#0EA7A7] h-2 rounded-full transition-all duration-300" 
+                         style="width: {{ progression }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question actuelle -->
+        {% if current_question %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    Question {{ current_question.ordre }}
+                </h2>
+                <p class="text-lg text-gray-700">{{ current_question.texte }}</p>
+                
+                {% if current_question.explication %}
+                <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700">{{ current_question.explication }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Formulaire de réponse -->
+            <form id="quiz-form" data-question-id="{{ current_question.id }}">
+                <div class="space-y-3">
+                    {% for choice in current_question.choices.all %}
+                    <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="{% if current_question.is_multiple_choice %}checkbox{% else %}radio{% endif %}" 
+                               name="choix" 
+                               value="{{ choice.id }}" 
+                               id="choice-{{ choice.id }}"
+                               class="{% if current_question.is_multiple_choice %}rounded{% else %}rounded-full{% endif %} border-gray-300 text-[#0EA7A7] focus:ring-[#0EA7A7]">
+                        <label for="choice-{{ choice.id }}" class="ml-3 text-gray-700 cursor-pointer flex-1">
+                            {{ choice.texte }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-6 flex justify-between">
+                    <button type="button" id="prev-btn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hidden">
+                        <i class="fas fa-arrow-left mr-2"></i>Précédent
+                    </button>
+                    
+                    <button type="submit" class="px-6 py-2 bg-[#0EA7A7] text-white rounded-lg hover:bg-teal-600">
+                        {% if forloop.last %}Terminer le quiz{% else %}Question suivante <i class="fas fa-arrow-right ml-2"></i>{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <!-- Aucune question -->
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Quiz terminé !</h3>
+            <p class="text-gray-600 mb-4">Vous avez répondu à toutes les questions.</p>
+            <a href="{% url 'cours:quiz_results' attempt.id %}" class="px-6 py-2 bg-[#0EA7A7] text-white rounded-lg hover:bg-teal-600">
+                Voir les résultats
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Navigation rapide -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Navigation des questions</h3>
+            <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+                {% for question in quiz.questions.all %}
+                <a href="#" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
+                    {% if question == current_question %}bg-[#0EA7A7] text-white
+                    {% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    {{ forloop.counter }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let tempsRestant = {{ temps_restant }};
+let timerInterval;
+
+function demarrerTimer() {
+    timerInterval = setInterval(function() {
+        tempsRestant--;
+        
+        if (tempsRestant <= 0) {
+            clearInterval(timerInterval);
+            terminerQuizAuto();
+            return;
+        }
+        
+        const minutes = Math.floor(tempsRestant / 60);
+        const secondes = tempsRestant % 60;
+        document.getElementById('timer').textContent = `${minutes}:${secondes.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+
+function terminerQuizAuto() {
+    // Soumettre automatiquement le quiz quand le temps est écoulé
+    fetch("{% url 'cours:quiz_finish' attempt.id %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = "{% url 'cours:quiz_results' attempt.id %}";
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    demarrerTimer();
+    
+    const form = document.getElementById('quiz-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const questionId = form.dataset.questionId;
+            const selectedChoices = Array.from(form.querySelectorAll('input[name="choix"]:checked'))
+                .map(input => input.value);
+            
+            // Envoyer la réponse
+            fetch("{% url 'cours:quiz_submit' attempt.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question_id: questionId,
+                    choix_ids: selectedChoices,
+                    temps_reponse: {{ quiz.duree }} * 60 - tempsRestant
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recharger la page pour la question suivante
+                    window.location.reload();
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la soumission de la réponse');
+            });
+        });
+    }
+    
+    // Sauvegarder avant de quitter
+    window.addEventListener('beforeunload', function(e) {
+        e.preventDefault();
+        e.returnValue = '';
+    });
+});
+
+// Arrêter le timer quand la page se ferme
+window.addEventListener('unload', function() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+});
+</script>
+{% endblock %}

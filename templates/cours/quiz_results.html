@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Résultats - {{ quiz.titre }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Résumé des résultats -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center 
+                {% if score >= 80 %}bg-green-100 text-green-600
+                {% elif score >= 60 %}bg-yellow-100 text-yellow-600
+                {% else %}bg-red-100 text-red-600{% endif %}">
+                <i class="fas fa-trophy text-3xl"></i>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ quiz.titre }}</h1>
+            <p class="text-gray-600 mb-6">Quiz terminé le {{ attempt.date_fin|date:"d/m/Y à H:i" }}</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-[#0EA7A7]">{{ score }}%</div>
+                    <div class="text-gray-600">Score final</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-blue-600">{{ points_obtenus }}/{{ points_max }}</div>
+                    <div class="text-gray-600">Points obtenus</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-purple-600">{{ duree }}</div>
+                    <div class="text-gray-600">Durée</div>
+                </div>
+            </div>
+            
+            <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
+                {% if score >= 80 %}bg-green-100 text-green-800
+                {% elif score >= 60 %}bg-yellow-100 text-yellow-800
+                {% else %}bg-red-100 text-red-800{% endif %}">
+                <i class="fas fa-star mr-2"></i>
+                {{ appreciation }}
+            </div>
+        </div>
+
+        <!-- Détail des réponses -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Détail des réponses</h2>
+            
+            <div class="space-y-6">
+                {% for reponse in reponses %}
+                <div class="border border-gray-200 rounded-lg p-6 {% if reponse.est_correcte %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %}">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            Question {{ forloop.counter }} - {{ reponse.question.points }} point{{ reponse.question.points|pluralize }}
+                        </h3>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            {% if reponse.est_correcte %}bg-green-100 text-green-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if reponse.est_correcte %}
+                            <i class="fas fa-check mr-1"></i> Correct
+                            {% else %}
+                            <i class="fas fa-times mr-1"></i> Incorrect
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4">{{ reponse.question.texte }}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Votre réponse :</h4>
+                            <p class="text-gray-600">{{ reponse.get_choix_selectionnes_text|default:"Aucune réponse" }}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Réponse correcte :</h4>
+                            <p class="text-gray-600">{{ reponse.get_reponses_correctes_text }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if reponse.question.explication %}
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-1">Explication :</h4>
+                        <p class="text-blue-700">{{ reponse.question.explication }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4 text-sm text-gray-600">
+                        Points obtenus : <span class="font-semibold">{{ reponse.points_obtenus }}/{{ reponse.question.points }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex justify-center space-x-4">
+            <a href="{% url 'cours:quiz_list' %}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>Retour aux quiz
+            </a>
+            <a href="{% url 'cours:quiz_start' quiz.id %}" class="px-6 py-2 bg-[#0EA7A7] text-white rounded-lg hover:bg-teal-600">
+                <i class="fas fa-redo mr-2"></i>Refaire le quiz
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

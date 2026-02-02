@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Mon Profil Professeur - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- En-tête du profil -->
+    <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 h-32"></div>
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center -mt-16 border-4 border-white shadow-lg">
+                    <i class="fas fa-user-graduate text-3xl text-blue-600"></i>
+                </div>
+                <div class="ml-6">
+                    <h1 class="text-2xl font-bold text-gray-800">{{ user.get_full_name|default:user.username }}</h1>
+                    <p class="text-gray-600">Professeur - {{ profil.matiere_principale|default:"Matière à définir" }}</p>
+                </div>
+            </div>
+            <div>
+                <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">
+                    <i class="fas fa-chalkboard-teacher mr-1"></i>Professeur
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Colonne gauche - Informations professionnelles -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Informations professionnelles -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Informations professionnelles</h2>
+                <form method="post" enctype="multipart/form-data" id="profil-form">
+                    {% csrf_token %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.matiere_principale.label }}</label>
+                            {{ form.matiere_principale }}
+                            {% if form.matiere_principale.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.matiere_principale.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.niveau_enseigne.label }}</label>
+                            {{ form.niveau_enseigne }}
+                            {% if form.niveau_enseigne.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.niveau_enseigne.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.experience.label }}</label>
+                        {{ form.experience }}
+                        {% if form.experience.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.experience.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.biographie.label }}</label>
+                        {{ form.biographie }}
+                        {% if form.biographie.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.biographie.errors.0 }}</p>
+                        {% endif %}
+                        <small class="text-gray-500">Présentez-vous aux élèves et parents</small>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.cv.label }}</label>
+                        {{ form.cv }}
+                        {% if form.cv.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.cv.errors.0 }}</p>
+                        {% endif %}
+                        {% if profil.cv %}
+                            <p class="text-green-600 text-sm mt-2">
+                                <i class="fas fa-file-pdf mr-1"></i>
+                                CV actuel: <a href="{{ profil.cv.url }}" target="_blank" class="underline font-medium">Télécharger</a>
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                            <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Section cours -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Mes Cours</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                        {{ cours_count }} cours créé{{ cours_count|pluralize:"s" }}
+                    </span>
+                </div>
+                
+                <div class="space-y-4">
+                    {% if cours_professeur %}
+                        {% for cours in cours_professeur %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-800">{{ cours.titre }}</h3>
+                                    <p class="text-sm text-gray-600 mt-1">{{ cours.description|truncatewords:20|default:"Aucune description" }}</p>
+                                    <div class="flex items-center mt-2 text-sm text-gray-500">
+                                        <span class="mr-4">
+                                            <i class="fas fa-users mr-1"></i>
+                                            {% with eleves_count=cours.courscourseleves_set.count %}
+                                                {{ eleves_count }} élève{{ eleves_count|pluralize }}
+                                            {% endwith %}
+                                        </span>
+                                        <span class="mr-4">
+                                            <i class="fas fa-book mr-1"></i>{{ cours.matiere|default:"Non spécifié" }}
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-calendar-alt mr-1"></i>{{ cours.date_creation|date:"d/m/Y" }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end space-y-2">
+                                    <span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                        {{ cours.niveau|default:"Tous niveaux" }}
+                                    </span>
+                                    <a href="{% url 'cours:detail' cours.pk %}" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                        Voir le cours
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-chalkboard-teacher text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">Vous n'avez pas encore créé de cours.</p>
+                            <a href="{% url 'cours:create' %}" class="inline-block mt-3 bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                                Créer votre premier cours
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if cours_professeur %}
+                <div class="mt-4 text-center">
+                    <a href="{% url 'cours:list' %}" class="text-[#0EA7A7] hover:text-teal-600 font-medium">
+                        Voir tous mes cours <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Colonne droite -->
+        <div class="space-y-6">
+            <!-- Carte statistiques -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Mes Statistiques</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Cours créés</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ stats.cours_actifs }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Élèves total</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ stats.eleves_total }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Cours ce mois</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ stats.sessions_mois }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Note moyenne</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ stats.note_moyenne }}/5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte informations du compte -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Informations du compte</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium text-gray-700">Date d'inscription</span>
+                        <span class="text-sm text-gray-600">{{ user.date_joined|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium text-gray-700">Dernière connexion</span>
+                        <span class="text-sm text-gray-600">{{ user.last_login|date:"d/m/Y à H:i"|default:"Jamais" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium text-gray-700">Email vérifié</span>
+                        <span class="text-sm text-gray-600">
+                            {% if user.is_active %}
+                                <i class="fas fa-check-circle text-green-500"></i> Oui
+                            {% else %}
+                                <i class="fas fa-times-circle text-red-500"></i> Non
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm font-medium text-gray-700">Téléphone</span>
+                        <span class="text-sm text-gray-600">{{ user.telephone|default:"Non renseigné" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte notifications -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Préférences de notifications</h2>
+                <form method="post" action="{% url 'parametres' %}">
+                    {% csrf_token %}
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">Notifications par email</span>
+                            <label class="relative inline-block w-12 h-6 cursor-pointer">
+                                <input type="checkbox" id="email_notifications" name="email_notifications" class="sr-only peer" {% if user.email_notifications %}checked{% endif %}>
+                                <div class="block bg-gray-300 w-12 h-6 rounded-full transition duration-300 ease-in-out peer-checked:bg-green-500"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition duration-300 ease-in-out peer-checked:translate-x-6"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">Notifications par SMS</span>
+                            <label class="relative inline-block w-12 h-6 cursor-pointer">
+                                <input type="checkbox" id="sms_notifications" name="sms_notifications" class="sr-only peer" {% if user.sms_notifications %}checked{% endif %}>
+                                <div class="block bg-gray-300 w-12 h-6 rounded-full transition duration-300 ease-in-out peer-checked:bg-green-500"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition duration-300 ease-in-out peer-checked:translate-x-6"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-4 w-full bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        Enregistrer les préférences
+                    </button>
+                </form>
+            </div>
+
+            <!-- Carte actions rapides -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Actions rapides</h2>
+                <div class="space-y-2">
+                    <a href="{% url 'cours:create' %}" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-plus mr-2"></i>Créer un cours
+                    </a>
+                    <a href="{% url 'cours:emploi_du_temps_list' %}" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-calendar-alt mr-2"></i>Emploi du temps
+                    </a>
+                    <a href="{% url 'cours:quiz_create' %}" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-question-circle mr-2"></i>Créer un Quiz
+                    </a>
+                    <a href="#" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-envelope mr-2"></i>Messagerie
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des formulaires
+    const profilForm = document.getElementById('profil-form');
+    if (profilForm) {
+        profilForm.addEventListener('submit', function(e) {
+            // Validation basique
+            const matierePrincipale = document.getElementById('id_matiere_principale');
+            if (matierePrincipale && !matierePrincipale.value) {
+                e.preventDefault();
+                alert('Veuillez renseigner votre matière principale.');
+                matierePrincipale.focus();
+                return;
+            }
+        });
+    }
+
+    // Animation des cartes
+    const cards = document.querySelectorAll('.bg-white');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.transition = 'transform 0.2s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Gestion des notifications
+    const notificationToggles = document.querySelectorAll('input[type="checkbox"]');
+    notificationToggles.forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const form = this.closest('form');
+            if (form) {
+                // Soumission automatique du formulaire de notifications
+                form.submit();
+            }
+        });
+    });
+
+    // Affichage dynamique du compteur d'élèves
+    const updateElevesCount = () => {
+        const elevesCountElements = document.querySelectorAll('[data-eleves-count]');
+        elevesCountElements.forEach(element => {
+            const count = parseInt(element.dataset.elevesCount);
+            if (count === 0) {
+                element.innerHTML = '<i class="fas fa-users mr-1"></i>Aucun élève';
+            } else if (count === 1) {
+                element.innerHTML = `<i class="fas fa-users mr-1"></i>${count} élève`;
+            } else {
+                element.innerHTML = `<i class="fas fa-users mr-1"></i>${count} élèves`;
+            }
+        });
+    };
+
+    updateElevesCount();
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Styles pour les switches */
+.dot {
+    transition: all 0.3s ease-in-out;
+}
+
+input:checked + .block {
+    background-color: #10B981;
+}
+
+/* Animation pour les cartes */
+.bg-white {
+    transition: all 0.3s ease;
+}
+
+/* Styles pour les formulaires */
+input, select, textarea {
+    border: 1px solid #D1D5DB;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #0EA7A7;
+    border-color: #0EA7A7;
+}
+
+/* Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.badge-info {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
+
+.badge-warning {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .flex-col-mobile {
+        flex-direction: column;
+    }
+    
+    .space-y-mobile > * + * {
+        margin-top: 1rem;
+    }
+}
+</style>
+
+{% endblock %}
+            

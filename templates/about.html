@@ -1,0 +1,49 @@
+{% extends "./base.html" %}
+{% block title %}À propos - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="py-6 px-6 max-w-5xl mx-auto">
+  <div class="flex rounded-lg overflow-hidden shadow-lg">
+
+    <!-- Partie jaune 50% -->
+    <div class="w-1/2 bg-yellow-400 p-10 text-black">
+      <h1 class="text-4xl font-bold mb-6">À propos de MyKarfour</h1>
+
+      <div class="space-y-6 text-lg leading-relaxed">
+        <p><strong>MyKarfour</strong> est une plateforme éducative intelligente qui accompagne les élèves au quotidien à travers un système de répétiteur basé sur l'intelligence artificielle.</p>
+
+        <p>Notre mission est de proposer un apprentissage structuré, personnalisé et motivant grâce à une technologie accessible, même en mode hors ligne ou vocal.</p>
+
+        <p>Le système prend en compte l’emploi du temps de l’élève pour générer automatiquement des séances de révision ciblées avec des quiz, des supports pédagogiques et un suivi intelligent.</p>
+      </div>
+    </div>
+
+    <!-- Partie turquoise foncé 50% -->
+    <div class="w-1/2 bg-[#0EA7A7] p-10 text-white">
+      <h2 class="text-3xl font-semibold mb-6">Pourquoi le nom “MyKarfour” ?</h2>
+      <p class="mb-8">
+        “Karfour” symbolise un carrefour éducatif, où l’élève, les parents, l’IA et les enseignants peuvent se croiser et collaborer pour la réussite scolaire.
+      </p>
+
+      <h2 class="text-3xl font-semibold mb-4">Valeur ajoutée</h2>
+      <ul class="list-disc list-inside space-y-2 mb-8">
+        <li>Accompagnement pédagogique intelligent et bienveillant</li>
+        <li>Adaptabilité à l'emploi du temps réel de l'élève</li>
+        <li>Suivi de progression avec feedback personnalisé</li>
+        <li>Implication des parents via un espace dédié</li>
+        <li>Accessibilité même en zone à faible connectivité</li>
+      </ul>
+
+      <h2 class="text-3xl font-semibold mb-4">Acteurs principaux</h2>
+      <ul class="list-disc list-inside space-y-2">
+        <li><strong>L’élève</strong> : au cœur du processus d’apprentissage</li>
+        <li><strong>Le parent</strong> : un partenaire du suivi éducatif</li>
+        <li><strong>L’IA</strong> : un répétiteur pédagogique intelligent</li>
+        <li><strong>L’administrateur</strong> : supervise la plateforme et les abonnements</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

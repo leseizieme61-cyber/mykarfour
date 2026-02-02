@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ajouter une Question - {{ quiz.titre }} - MrKarfour{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- En-tête -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">➕ Ajouter une Question</h1>
+                    <p class="mt-2 text-lg text-gray-600">
+                        Ajoutez une nouvelle question au quiz "{{ quiz.titre }}"
+                    </p>
+                </div>
+                <a href="{% url 'cours:quiz_detail' quiz.pk %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour au quiz
+                </a>
+            </div>
+        </div>
+
+        <!-- Carte du formulaire -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Informations du quiz -->
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold">{{ quiz.titre }}</h2>
+                        <p class="text-blue-100 text-sm mt-1">
+                            {{ quiz.questions.count }} question{{ quiz.questions.count|pluralize }} • 
+                            {{ quiz.duree }} minutes • 
+                            {{ quiz.points_max }} points max
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-blue-200">Créé par</div>
+                        <div class="font-semibold">{{ quiz.created_by.get_full_name|default:quiz.created_by.username }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <form method="post" class="p-6">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    <!-- Question -->
+                    <div>
+                        <label for="{{ form.texte.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Question *
+                        </label>
+                        {{ form.texte }}
+                        {% if form.texte.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.texte.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-sm text-gray-500 mt-1">Formulez clairement votre question.</p>
+                    </div>
+
+                    <!-- Points -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.points.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Points *
+                            </label>
+                            {{ form.points }}
+                            {% if form.points.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.points.errors.0 }}</p>
+                            {% endif %}
+                            <p class="text-sm text-gray-500 mt-1">Valeur de la question.</p>
+                        </div>
+
+                        <div>
+                            <label for="{{ form.ordre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Ordre
+                            </label>
+                            {{ form.ordre }}
+                            {% if form.ordre.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.ordre.errors.0 }}</p>
+                            {% endif %}
+                            <p class="text-sm text-gray-500 mt-1">Position dans le quiz.</p>
+                        </div>
+                    </div>
+
+                    <!-- Explication -->
+                    <div>
+                        <label for="{{ form.explication.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Explication (optionnelle)
+                        </label>
+                        {{ form.explication }}
+                        {% if form.explication.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.explication.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-sm text-gray-500 mt-1">Explication qui sera montrée après la réponse.</p>
+                    </div>
+
+                    <!-- Section des choix de réponse -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">📝 Choix de Réponse</h3>
+                        <p class="text-sm text-gray-600 mb-6">
+                            Ajoutez au moins 2 choix de réponse. Cochez les réponses correctes.
+                            Pour les questions à choix unique, une seule réponse doit être correcte.
+                        </p>
+
+                        <div id="choices-container" class="space-y-4">
+                            <!-- Les choix seront ajoutés dynamiquement ici -->
+                        </div>
+
+                        <!-- Bouton pour ajouter un choix -->
+                        <button type="button" id="add-choice-btn" 
+                                class="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150">
+                            <i class="fas fa-plus mr-2"></i>
+                            Ajouter un choix
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    <a href="{% url 'cours:quiz_detail' quiz.pk %}" 
+                       class="px-6 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150">
+                        Annuler
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-[#0EA7A7] text-white text-sm font-medium rounded-md hover:bg-teal-600 transition duration-150">
+                        <i class="fas fa-save mr-2"></i>
+                        Ajouter la question
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Aide -->
+        <div class="mt-8 grid md:grid-cols-2 gap-6">
+            <!-- Conseils pour les questions -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-blue-100">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-blue-500"></i>
+                    Conseils pour créer une bonne question
+                </h3>
+                <ul class="space-y-3 text-sm text-gray-600">
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Formulez des questions claires et précises</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Proposez des choix de réponse plausibles</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Évitez les questions ambiguës</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Variez les difficultés des questions</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Types de questions -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-purple-100">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-purple-500"></i>
+                    Types de questions supportées
+                </h3>
+                <div class="space-y-4 text-sm text-gray-600">
+                    <div>
+                        <h4 class="font-medium text-gray-800">✅ Choix unique</h4>
+                        <p class="mt-1">Une seule réponse correcte parmi plusieurs choix.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">✅ Choix multiples</h4>
+                        <p class="mt-1">Plusieurs réponses correctes possibles.</p>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-2">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        Les points sont calculés proportionnellement aux bonnes réponses pour les questions à choix multiples.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let choiceCount = 0;
+    const choicesContainer = document.getElementById('choices-container');
+    const addChoiceBtn = document.getElementById('add-choice-btn');
+
+    // Template pour un choix
+    function createChoiceField() {
+        choiceCount++;
+        const choiceId = `choice-${choiceCount}`;
+        
+        return `
+            <div class="choice-field border border-gray-200 rounded-lg p-4 bg-gray-50" data-choice-id="${choiceId}">
+                <div class="flex items-start gap-4">
+                    <!-- Checkbox pour réponse correcte -->
+                    <div class="flex-shrink-0">
+                        <input type="checkbox" 
+                               name="est_correcte_${choiceCount}" 
+                               id="est_correcte_${choiceCount}"
+                               class="h-4 w-4 text-[#0EA7A7] focus:ring-[#0EA7A7] border-gray-300 rounded">
+                        <label for="est_correcte_${choiceCount}" class="sr-only">Réponse correcte</label>
+                    </div>
+                    
+                    <!-- Texte du choix -->
+                    <div class="flex-1">
+                        <label for="texte_${choiceCount}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Choix ${choiceCount}
+                        </label>
+                        <input type="text" 
+                               name="texte_${choiceCount}" 
+                               id="texte_${choiceCount}"
+                               placeholder="Entrez le texte de ce choix..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7] focus:border-transparent text-black">
+                    </div>
+                    
+                    <!-- Ordre (caché) -->
+                    <input type="hidden" name="ordre_${choiceCount}" value="${choiceCount}">
+                    
+                    <!-- Bouton supprimer -->
+                    <button type="button" 
+                            class="delete-choice flex-shrink-0 mt-7 text-red-600 hover:text-red-800 transition duration-150"
+                            onclick="this.closest('.choice-field').remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                
+                <!-- Indicateur visuel pour réponse correcte -->
+                <div class="flex items-center mt-2">
+                    <label for="est_correcte_${choiceCount}" class="flex items-center text-sm text-gray-600 cursor-pointer">
+                        <div class="w-4 h-4 border border-gray-300 rounded mr-2 flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xs correct-icon hidden"></i>
+                        </div>
+                        Réponse correcte
+                    </label>
+                </div>
+            </div>
+        `;
+    }
+
+    // Ajouter un choix
+    addChoiceBtn.addEventListener('click', function() {
+        if (choiceCount >= 6) {
+            alert('Maximum 6 choix de réponse autorisés.');
+            return;
+        }
+        
+        const choiceField = createChoiceField();
+        choicesContainer.insertAdjacentHTML('beforeend', choiceField);
+        
+        // Ajouter l'événement pour le checkbox
+        const newCheckbox = document.getElementById(`est_correcte_${choiceCount}`);
+        const correctIcon = choicesContainer.lastElementChild.querySelector('.correct-icon');
+        
+        newCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                correctIcon.classList.remove('hidden');
+                correctIcon.classList.add('text-green-500');
+            } else {
+                correctIcon.classList.add('hidden');
+            }
+        });
+    });
+
+    // Ajouter 2 choix par défaut
+    addChoiceBtn.click();
+    addChoiceBtn.click();
+
+    // Validation du formulaire
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validation basique
+        const questionText = document.getElementById('id_texte').value.trim();
+        if (!questionText) {
+            alert('Veuillez saisir la question.');
+            return;
+        }
+        
+        // Vérifier qu'il y a au moins 2 choix
+        const choiceFields = document.querySelectorAll('.choice-field');
+        if (choiceFields.length < 2) {
+            alert('Veuillez ajouter au moins 2 choix de réponse.');
+            return;
+        }
+        
+        // Vérifier qu'au moins un choix est marqué comme correct
+        const hasCorrectAnswer = Array.from(document.querySelectorAll('input[type="checkbox"][name^="est_correcte"]'))
+            .some(checkbox => checkbox.checked);
+        
+        if (!hasCorrectAnswer) {
+            alert('Veuillez sélectionner au moins une réponse correcte.');
+            return;
+        }
+        
+        // Vérifier que tous les choix ont du texte
+        let allChoicesHaveText = true;
+        choiceFields.forEach((field, index) => {
+            const choiceText = field.querySelector('input[type="text"]').value.trim();
+            if (!choiceText) {
+                allChoicesHaveText = false;
+            }
+        });
+        
+        if (!allChoicesHaveText) {
+            alert('Veuillez remplir le texte pour tous les choix.');
+            return;
+        }
+        
+        // Si tout est valide, soumettre le formulaire
+        this.submit();
+    });
+
+    // Animation d'apparition
+    const formElements = document.querySelectorAll('input, textarea, select');
+    formElements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(10px)';
+        
+        setTimeout(() => {
+            element.style.transition = 'all 0.3s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+
+// Gestion des checkboxes de réponse correcte
+document.addEventListener('change', function(e) {
+    if (e.target.type === 'checkbox' && e.target.name.startsWith('est_correcte')) {
+        const choiceField = e.target.closest('.choice-field');
+        const correctIcon = choiceField.querySelector('.correct-icon');
+        
+        if (e.target.checked) {
+            correctIcon.classList.remove('hidden');
+            correctIcon.classList.add('text-green-500');
+            
+            // Pour les questions à choix unique, désélectionner les autres
+            if (!confirm('Souhaitez-vous permettre plusieurs réponses correctes ?')) {
+                document.querySelectorAll('input[type="checkbox"][name^="est_correcte"]').forEach(checkbox => {
+                    if (checkbox !== e.target) {
+                        checkbox.checked = false;
+                        checkbox.closest('.choice-field').querySelector('.correct-icon').classList.add('hidden');
+                    }
+                });
+            }
+        } else {
+            correctIcon.classList.add('hidden');
+        }
+    }
+});
+</script>
+
+<style>
+.choice-field {
+    transition: all 0.3s ease;
+}
+
+.choice-field:hover {
+    border-color: #0EA7A7;
+    background-color: #f8fafc;
+}
+
+.delete-choice {
+    transition: all 0.2s ease;
+}
+
+.correct-icon {
+    transition: all 0.2s ease;
+}
+
+/* Styles pour les champs de formulaire */
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #1f2937;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+input[type="text"]:focus, textarea:focus, select:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #0EA7A7;
+    border-color: #0EA7A7;
+    box-shadow: 0 0 0 3px rgba(14, 167, 167, 0.1);
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/* Style pour les checkboxes personnalisées */
+input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.25rem;
+    border: 2px solid #d1d5db;
+    appearance: none;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #0EA7A7;
+    border-color: #0EA7A7;
+}
+
+input[type="checkbox"]:checked::before {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+</style>
+{% endblock %}

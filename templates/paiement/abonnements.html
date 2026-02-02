@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Abonnements - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="py-16 px-6 max-w-6xl mx-auto">
+  <!-- Bandeau principal -->
+  <div class="text-center mb-12 p-10 rounded-lg shadow-lg bg-primaryDark">
+    <h1 class="text-4xl font-extrabold text-white mb-4">Nos formules d'abonnement</h1>
+    <p class="text-lg text-gray-100">
+      Choisissez le plan qui convient le mieux à votre rythme d'apprentissage.
+    </p>
+  </div>
+
+
+  <!-- Cartes d'abonnement -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+    <!-- Offre Mensuelle -->
+    <div
+      class="bg-white rounded-lg shadow-lg overflow-hidden border border-primary hover:shadow-2xl transition duration-300">
+      <div class="bg-primary text-white text-center p-6">
+        <h2 class="text-2xl font-bold">Mensuel</h2>
+        <p class="text-4xl font-extrabold mt-2">9 900 FCFA</p>
+      </div>
+      <div class="p-6">
+        <ul class="text-base text-gray-900 space-y-3 mb-8">
+          <li>✔ Accès à tous les cours</li>
+          <li>✔ Génération de contenu illimitée</li>
+          <li>✔ Quiz personnalisés</li>
+          <li>✔ Notifications de rappel</li>
+        </ul>
+        <a href="{% url 'processus_paiement_singpay' forfait_id=1 %}"
+          class="block text-center bg-secondary text-white font-bold py-3 rounded-lg hover:bg-secondaryDark transition">
+          Choisir ce plan
+        </a>
+      </div>
+    </div>
+
+    <!-- Offre Trimestrielle -->
+    <div class="bg-white rounded-lg shadow-2xl overflow-hidden border-2 border-secondary scale-105">
+      <div class="bg-secondary text-white text-center p-6 relative">
+        <span
+          class="absolute top-3 right-3 bg-white text-secondary font-bold text-xs uppercase px-3 py-1 rounded-full shadow-lg">★
+          Populaire</span>
+        <h2 class="text-2xl font-bold">Trimestriel</h2>
+        <p class="text-4xl font-extrabold mt-2">31 900 FCFA</p>
+      </div>
+      <div class="p-6">
+        <ul class="text-base text-gray-900 space-y-3 mb-8">
+          <li>✔ Accès à tous les cours</li>
+          <li>✔ Génération de contenu illimitée</li>
+          <li>✔ Quiz personnalisés</li>
+          <li>✔ Notifications de rappel</li>
+          <li class="text-green-700 font-semibold">✔ Économisez 15%</li>
+        </ul>
+        <a href="{% url 'processus_paiement_singpay' forfait_id=2 %}"
+          class="block text-center bg-primary text-white font-bold py-3 rounded-lg hover:bg-primaryDark transition">
+          Choisir ce plan
+        </a>
+      </div>
+    </div>
+
+    <!-- Offre Annuelle -->
+    <div
+      class="bg-white rounded-lg shadow-lg overflow-hidden border border-primary hover:shadow-2xl transition duration-300">
+      <div class="bg-primary text-white text-center p-6">
+        <h2 class="text-2xl font-bold">Annuel</h2>
+        <p class="text-4xl font-extrabold mt-2">40 000 FCFA</p>
+      </div>
+      <div class="p-6">
+        <ul class="text-base text-gray-900 space-y-3 mb-8">
+          <li>✔ Accès à tous les cours</li>
+          <li>✔ Génération de contenu illimitée</li>
+          <li>✔ Quiz personnalisés</li>
+          <li>✔ Notifications de rappel</li>
+          <li class="text-green-700 font-semibold">✔ Économisez 30%</li>
+        </ul>
+        <a href="{% url 'processus_paiement_singpay' forfait_id=3 %}"
+          class="block text-center bg-secondary text-white font-bold py-3 rounded-lg hover:bg-secondaryDark transition">
+          Choisir ce plan
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Section FAQ -->
+  <div class="mt-20 bg-secondaryDark text-white rounded-lg p-10 shadow-xl max-w-4xl mx-auto">
+    <h3 class="text-3xl font-extrabold mb-8">Questions fréquentes</h3>
+
+    <div class="space-y-8 text-base">
+      <div>
+        <h4 class="font-semibold text-yellow-300">Comment fonctionne le paiement ?</h4>
+        <p class="mt-2 text-gray-200">Nous acceptons les paiements par Mobile Money (Aitel Money, Moov Money) et cartes
+          bancaires. Votre abonnement sera renouvelé automatiquement à la fin de la période.</p>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-yellow-300">Puis-je changer de formule ?</h4>
+        <p class="mt-2 text-gray-200">Oui, vous pouvez changer de formule à tout moment. La nouvelle formule sera
+          appliquée à la fin de votre période de facturation actuelle.</p>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-yellow-300">Y a-t-il un engagement ?</h4>
+        <p class="mt-2 text-gray-200">Aucun engagement. Vous pouvez résilier votre abonnement à tout moment, et il
+          restera actif jusqu'à la fin de la période payée.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éduquons Nos Enfants - Campagne Citoyenne</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .image-container {
+            overflow: hidden;
+        }
+        .responsive-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+        }
+        .video-container iframe,
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .counter-animation {
+            animation: counterPop 0.5s ease-in-out;
+        }
+        @keyframes counterPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- En-tête avec logo -->
+        <header class="flex flex-col md:flex-row items-center justify-between mb-8">
+            <div class="logo-container w-48 h-24 rounded-lg mb-4 md:mb-0 shadow-md">
+                <img src="./img/logo.jpeg" alt="Logo de la Campagne" class="h-20 w-auto object-contain">
+            </div>
+            <div class="text-center md:text-right">
+                <h1 class="text-2xl md:text-3xl font-bold text-green-800 mb-2">CAMPAGNE CITOYENNE</h1>
+                <h2 class="text-3xl md:text-4xl font-bold text-blue-800">ÉDUQUONS NOS ENFANTS</h2>
+            </div>
+        </header>
+
+        <!-- Section principale -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="image-container rounded-2xl h-80 lg:h-96 overflow-hidden">
+                <img src="./img/banner.jpeg" alt="Famille gabonaise" class="responsive-img">
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-center">
+                <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">PARENTS!</h3>
+                <p class="text-xl md:text-2xl font-semibold text-green-700 mb-8 text-center">EDUQUER NOS ENFANTS, C'EST LA PREMIERE CONDITION POUR TRANSFORMER REELLEMENT LE GABON.</p>
+                <p class="text-lg text-gray-600 italic text-center">L'avenir du Gabon commence à la maison</p>
+                
+                   <!-- Section téléchargement -->
+                <div class="mt-8 bg-blue-50 rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4 text-center">
+                        Téléchargez la charte de bonne conduite et des valeurs citoyennes
+                    </h3>
+                    <p class="mb-6 text-center text-gray-700">Préparons nos enfants à être la relève du Gabon de demain</p>
+                    
+                    <button id="downloadBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold py-4 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105 flex items-center justify-center gap-2 mb-4 pulse">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Télécharger le guide
+                    </button>
+
+                    <div class="mt-4 text-center">
+                        <p class="text-lg text-blue-800">
+                            Ce document a été téléchargé 
+                            <span id="downloadCount" class="font-bold text-yellow-600 text-2xl">
+                                0                            </span> fois
+                        </p>
+                        
+                                                    <div class="mt-2 p-2 bg-red-100 border border-red-300 rounded">
+                                <p class="text-red-600 text-sm">⚠️ Mode démo activé - Base de données temporairement indisponible</p>
+                                <p class="text-red-500 text-xs mt-1">Connexion à la base de données impossible</p>
+                            </div>
+                                                
+                        <div id="counterStatus" class="text-xs mt-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+        <!-- Section vidéo -->
+        <div class="mb-12">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Découvrez notre message en vidéo</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-2">
+                        <div class="video-container">
+                            <!-- Intégration YouTube -->
+                            <iframe 
+                                src="https://www.youtube.com/embed/M7BEWGMctug?si=9k_m5qO9FGRaTxj6" 
+                                title="Campagne citoyenne - Éduquons nos enfants"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">Pourquoi cette campagne ?</h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Renforcer l'éducation familiale</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Impliquer les parents dans le parcours éducatif</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Créer un environnement propice à l'apprentissage</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Bâtir ensemble l'avenir du Gabon</span>
+                            </li>
+                        </ul>
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-gray-600 italic">
+                                "L'éducation est l'arme la plus puissante qu'on puisse utiliser pour changer le monde"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section galerie d'images -->
+        <div class="mb-12">
+            <h3 class="text-2xl font-bold text-center text-gray-800 mb-6">Nos valeurs éducatives</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="image-container h-48">
+                        <img src="./img/enfant_apprenant.jpg" alt="Enfants apprenant" class="responsive-img">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-bold text-lg mb-2 text-green-700">Éducation de qualité</h4>
+                        <p class="text-gray-600">Des méthodes éducatives adaptées au contexte gabonais</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="image-container h-48">
+                        <img src="./img/Parents_enfants.jpg" alt="Parents et enfants" class="responsive-img">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-bold text-lg mb-2 text-blue-700">Implication parentale</h4>
+                        <p class="text-gray-600">Le rôle crucial des parents dans l'éducation des enfants</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="image-container h-48">
+                        <img src="./img/Communauté.jpg" alt="Communauté" class="responsive-img">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-bold text-lg mb-2 text-yellow-600">Communauté solidaire</h4>
+                        <p class="text-gray-600">Une approche collective pour l'éducation de nos enfants</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section d'information -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white rounded-lg shadow p-6 text-center">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <h4 class="font-bold text-lg mb-2">Éducation</h4>
+                <p class="text-gray-600">Des conseils pratiques pour l'éducation de vos enfants</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6 text-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h4 class="font-bold text-lg mb-2">Communauté</h4>
+                <p class="text-gray-600">Rejoignez une communauté de parents engagés</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6 text-center">
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h4 class="font-bold text-lg mb-2">Impact</h4>
+                <p class="text-gray-600">Contribuez à construire l'avenir du Gabon</p>
+            </div>
+        </div>
+
+        <!-- Section témoignages avec image -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+            <h3 class="text-2xl font-bold text-center text-gray-800 mb-6">Témoignages de parents</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <div class="image-container w-24 h-24 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+                        <img src="./img/marie.jpg" alt="Parent 1" class="responsive-img">
+                    </div>
+                    <div>
+                        <p class="text-gray-700 italic mb-2">"Cette campagne m'a ouvert les yeux sur l'importance de mon rôle dans l'éducation de mes enfants."</p>
+                        <p class="font-semibold text-green-700">- Marie, mère de 3 enfants</p>
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <div class="image-container w-24 h-24 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+                        <img src="./img/pierre.png" alt="Parent 2" class="responsive-img">
+                    </div>
+                    <div>
+                        <p class="text-gray-700 italic mb-2">"Les ressources fournies nous aident à créer un environnement éducatif stimulant à la maison."</p>
+                        <p class="font-semibold text-blue-700">- Pierre, père de 2 enfants</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pied de page -->
+        <footer class="mt-8 text-center text-gray-600 border-t border-gray-200 pt-6">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                <div class="logo-container w-32 h-16 rounded-lg mb-4 md:mb-0 shadow-md">
+                    <img src="./img/logo.jpeg" alt="Logo de la Campagne" class="h-12 w-auto object-contain">
+                </div>
+                <div class="flex-1 md:pl-4">
+                    <p class="text-lg font-semibold">Campagne citoyenne pour l'éducation des enfants au Gabon</p>
+                    <p class="mt-2 text-sm">© 2025 - Tous droits réservés</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+     <script>
+        let downloadCount = 0;
+        let isUpdating = false;
+        let dbError = true;
+
+        // Fonction pour afficher une alerte stylisée
+        function showDownloadAlert(count) {
+            const messages = [
+                `🎉 Félicitations ! Vous êtes le ${count}ème personne à télécharger ce document important.`,
+                `📚 Excellent choix ! Ce document a été téléchargé ${count} fois.`,
+                `🌟 Merci pour votre engagement ! ${count} téléchargements et autant de familles engagées.`,
+                `👏 Bravo ! Vous contribuez à un mouvement de ${count} parents déterminés.`,
+                `💫 Impressionnant ! ${count} familles ont déjà rejoint cette initiative.`
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            alert(`TÉLÉCHARGEMENT RÉUSSI !\n\n${randomMessage}`);
+        }
+
+        // Fonction pour incrémenter le compteur
+        async function incrementCounter() {
+            if (isUpdating) return false;
+            
+            isUpdating = true;
+            
+            try {
+                const response = await fetch('counter.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    downloadCount = data.count;
+                    document.getElementById('downloadCount').textContent = downloadCount;
+                    document.getElementById('counterStatus').textContent = '✅ Compteur mis à jour';
+                    isUpdating = false;
+                    return true;
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Erreur mise à jour compteur:', error);
+                document.getElementById('counterStatus').textContent = '❌ Erreur mise à jour';
+                isUpdating = false;
+                return false;
+            }
+        }
+
+        // Fonction pour télécharger le PDF
+        function downloadPDF() {
+            try {
+                // Essayer différents chemins
+                const possiblePaths = [
+                    'doc/charte.pdf',
+                    'doc/CHARTE DE BONNE CONDUITE ET DES VALEURS CITOYENNES-1.pdf',
+                    './doc/charte.pdf'
+                ];
+                
+                let link = document.createElement('a');
+                link.href = possiblePaths[0]; // Utiliser le premier chemin
+                link.download = 'CHARTE_DE_BONNE_CONDUITE_ET_DES_VALEURS_CITOYENNES.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                return true;
+            } catch (error) {
+                console.error('Erreur téléchargement:', error);
+                return false;
+            }
+        }
+
+        // Gestion du téléchargement
+        document.getElementById('downloadBtn').addEventListener('click', async function() {
+            const button = this;
+            const originalText = button.innerHTML;
+            
+            // Animation de chargement
+            button.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4m0 12v4m8-10h-4M6 12H2m16.364-6.364l-2.828 2.828M7.464 17.536l-2.828 2.828M17.536 7.464l2.828 2.828M4.636 19.364l2.828-2.828" />
+                </svg>
+                Traitement...
+            `;
+            button.disabled = true;
+            button.classList.remove('pulse');
+
+            try {
+                let counterSuccess = true;
+                
+                // Mettre à jour le compteur seulement si la DB fonctionne
+                if (!dbError) {
+                    counterSuccess = await incrementCounter();
+                }
+                
+                if (counterSuccess) {
+                    // Afficher l'alerte
+                    showDownloadAlert(downloadCount);
+                    
+                    // Télécharger le PDF
+                    setTimeout(() => {
+                        const pdfSuccess = downloadPDF();
+                        
+                        if (pdfSuccess) {
+                            button.innerHTML = '✅ Téléchargé !';
+                            button.classList.add('bg-green-500', 'text-white');
+                        } else {
+                            button.innerHTML = '📄 Document disponible';
+                            button.classList.add('bg-blue-500', 'text-white');
+                        }
+                    }, 500);
+                } else {
+                    button.innerHTML = '❌ Erreur';
+                    button.classList.add('bg-red-500', 'text-white');
+                }
+            } catch (error) {
+                button.innerHTML = '⚠️ Erreur';
+                button.classList.add('bg-orange-500', 'text-white');
+            }
+
+            // Réinitialiser après 3 secondes
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-500', 'bg-blue-500', 'bg-red-500', 'bg-orange-500', 'text-white');
+                button.disabled = false;
+                button.classList.add('pulse');
+            }, 3000);
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (downloadCount === 0 && !dbError) {
+                    document.getElementById('counterStatus').textContent = '👋 Soyez le premier à télécharger !';
+                } else if (!dbError) {
+                    document.getElementById('counterStatus').textContent = `🎯 Déjà ${downloadCount} téléchargements !`;
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

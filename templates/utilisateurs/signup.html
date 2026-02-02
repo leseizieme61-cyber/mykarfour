@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Inscription - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex flex-col md:flex-row">
+  
+  <!-- Partie gauche : Info/accueil -->
+  <div class="w-full md:w-1/2 bg-yellow-400 flex items-center justify-center p-10 text-black">
+    <div class="max-w-md">
+      <h1 class="text-4xl font-extrabold mb-4">Rejoins MyKarfour</h1>
+      <p class="text-lg mb-4">Découvre un accompagnement intelligent, personnalisé et motivant pour tes études.</p>
+      <p class="text-sm italic text-gray-800">Commence ton parcours aujourd’hui.</p>
+    </div>
+  </div>
+
+  <!-- Partie droite : Formulaire -->
+  <div class="w-full md:w-1/2 bg-[#0EA7A7] text-white flex items-center justify-center p-10">
+    <div class="w-full max-w-md mt-10 mb-16">  <!-- <-- Ajout de margin top/bottom -->
+      <h2 class="text-2xl font-bold mb-6 text-center">Créer un compte élève</h2>
+
+      <form method="POST" action="{% url 'inscription' %}" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Erreurs globales -->
+        {% if form.non_field_errors %}
+          <div class="bg-red-200 text-red-900 p-2 rounded text-sm mb-2">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <!-- Champs du formulaire -->
+        {% for field in form %}
+          <div>
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.errors %}
+              <p class="text-red-200 text-sm mt-1">{{ field.errors|striptags }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <!-- Bouton -->
+        <button type="submit"
+                class="w-full bg-white text-[#0EA7A7] hover:bg-gray-100 font-bold py-2 px-4 rounded transition">
+          S’inscrire
+        </button>
+      </form>
+
+      <!-- Lien vers connexion -->
+      <p class="text-center text-sm text-white mt-6">
+        Vous avez déjà un compte ?
+        <a href="{% url 'connexion' %}" class="underline hover:text-white/80">Se connecter</a>
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

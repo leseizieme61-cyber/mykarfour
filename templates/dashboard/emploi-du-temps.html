@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emploi du Temps{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="h3 mb-4 text-gray-800">Mon Emploi du Temps</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Jour</th>
+                    <th>Matière</th>
+                    <th>Salle</th>
+                    <th>Heure Début</th>
+                    <th>Heure Fin</th>
+                    <th>Supprimer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                <tr>
+                    <td>{{ form.jour }}</td>
+                    <td>{{ form.matiere }}</td>
+                    <td>{{ form.salle }}</td>
+                    <td>{{ form.heure_debut }}</td>
+                    <td>{{ form.heure_fin }}</td>
+                    <td>
+                        {% if formset.can_delete %}
+                            {{ form.DELETE }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Enregistrer l'emploi du temps</button>
+    </form>
+</div>
+{% endblock %}

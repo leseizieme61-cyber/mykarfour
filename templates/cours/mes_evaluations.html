@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes Évaluations - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- En-tête -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">📊 Mes Évaluations</h1>
+            <p class="mt-2 text-lg text-gray-600">
+                Consultez vos notes et retours des professeurs
+            </p>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#0EA7A7]">
+                <div class="flex items-center">
+                    <div class="p-3 bg-[#0EA7A7] bg-opacity-10 rounded-lg">
+                        <i class="fas fa-clipboard-check text-[#0EA7A7] text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total des évaluations</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ evaluations.count }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="fas fa-star text-green-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Moyenne générale</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ moyenne_generale|default:"-" }}/5</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="fas fa-trophy text-blue-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Meilleure note</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ meilleure_note.note|default:"-" }}/5</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+                <div class="flex items-center">
+                    <div class="p-3 bg-orange-100 rounded-lg">
+                        <i class="fas fa-chart-line text-orange-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Progression</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ progression|default:"0" }}%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <!-- Filtres et recherche -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" 
+                            id="searchInput"
+                            placeholder="Rechercher un cours..." 
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA7A7] focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                     <select id="matiereFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#0EA7A7] focus:border-transparent">
+                        <option value="">Toutes les matières ({{ matieres_disponibles|length }})</option>
+                        {% for matiere in matieres_disponibles %}
+                            <option value="{{ matiere|lower }}">{{ matiere|title }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="noteFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#0EA7A7] focus:border-transparent">
+                        <option value="">Toutes les notes</option>
+                        <option value="5">⭐️⭐️⭐️⭐️⭐️ (5/5)</option>
+                        <option value="4">⭐️⭐️⭐️⭐️ (4/5)</option>
+                        <option value="3">⭐️⭐️⭐️ (3/5)</option>
+                        <option value="2">⭐️⭐️ (2/5)</option>
+                        <option value="1">⭐️ (1/5)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+                <!-- Liste des évaluations -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            {% if evaluations %}
+                <div class="divide-y divide-gray-200">
+                    {% for evaluation in evaluations %}
+                    <div class="p-6 hover:bg-gray-50 transition duration-150">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                            <!-- Informations du cours -->
+                            <div class="flex-1 mb-4 lg:mb-0">
+                                <div class="flex items-start space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="p-3 bg-[#0EA7A7] bg-opacity-10 rounded-lg">
+                                            <i class="fas fa-book text-[#0EA7A7] text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">
+                                            {{ evaluation.cours.titre }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 mt-1">
+                                            <span class="font-medium">{{ evaluation.cours.get_matiere_display }}</span> 
+                                            • {{ evaluation.cours.get_niveau_display }}
+                                        </p>
+                                        <p class="text-sm text-gray-500 mt-2">
+                                            Évalué le {{ evaluation.date_creation|date:"d F Y" }}
+                                        </p>
+                                        {% if evaluation.commentaire %}
+                                        <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                            <p class="text-sm text-blue-800">
+                                                <span class="font-medium">Commentaire du professeur :</span> 
+                                                {{ evaluation.commentaire }}
+                                            </p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Note et actions -->
+                            <div class="flex flex-col items-end space-y-3">
+                                <!-- Note -->
+                                <div class="text-center">
+                                    <div class="inline-flex items-center px-4 py-2 rounded-full 
+                                                {% if evaluation.note >= 4 %}bg-green-100 text-green-800
+                                                {% elif evaluation.note >= 3 %}bg-blue-100 text-blue-800
+                                                {% elif evaluation.note >= 2 %}bg-yellow-100 text-yellow-800
+                                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                        <span class="text-lg font-bold">{{ evaluation.note }}/5</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">{{ evaluation.get_appreciation }}</p>
+                                </div>
+
+                                <!-- Étoiles -->
+                                <div class="flex space-x-1">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= evaluation.note %}
+                                            <i class="fas fa-star text-yellow-400"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-gray-300"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'cours:detail' evaluation.cours.pk %}" 
+                                       class="inline-flex items-center px-3 py-2 border border-[#0EA7A7] text-sm font-medium rounded-md text-[#0EA7A7] bg-white hover:bg-[#0EA7A7] hover:text-white transition duration-150">
+                                        <i class="fas fa-eye mr-2"></i>
+                                        Voir le cours
+                                    </a>
+                                    {% if evaluation.quiz %}
+                                    <a href="{% url 'cours:quiz_detail' evaluation.quiz.pk %}" 
+                                       class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150">
+                                        <i class="fas fa-brain mr-2"></i>
+                                        Revoir le quiz
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                        </div>
+                        <div class="flex space-x-2">
+                            {% if page_obj.has_previous %}
+                                <a href="?page={{ page_obj.previous_page_number }}" 
+                                   class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                    Précédent
+                                </a>
+                            {% endif %}
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}" 
+                                   class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                    Suivant
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <!-- État vide -->
+                <div class="text-center py-12">
+                    <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-clipboard-list text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune évaluation pour le moment</h3>
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        Vous n'avez pas encore été évalué sur vos cours. 
+                        Les évaluations apparaîtront ici une fois que vos professeurs vous auront noté.
+                    </p>
+                    <a href="{% url 'cours:list' %}" 
+                       class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#0EA7A7] hover:bg-teal-600 transition duration-150">
+                        <i class="fas fa-book mr-2"></i>
+                        Explorer les cours
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Graphique de progression (section bonus) -->
+        {% if evaluations %}
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Répartition des notes -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">📈 Répartition de vos notes</h3>
+                <div class="space-y-4">
+                    {% for i in "54321" %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="w-8 text-sm font-medium text-gray-600">{{ i }}/5</span>
+                            <div class="flex ml-2">
+                                {% for star in "12345" %}
+                                    {% if forloop.counter <= i|add:"0" %}
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                                <div class="bg-[#0EA7A7] h-2 rounded-full" 
+                                     style="width: {% widthratio notes_distribution.i  evaluations.count 100 %}%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600 w-8 text-right">
+                                {{ notes_distribution.i }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Conseils d'amélioration -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">💡 Conseils pour progresser</h3>
+                <div class="space-y-3">
+                    {% if moyenne_generale < 3 %}
+                    <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-yellow-800">Besoin de renforcement</p>
+                            <p class="text-sm text-yellow-700">Concentrez-vous sur les concepts de base et n'hésitez pas à demander de l'aide à vos professeurs.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <i class="fas fa-chart-line text-blue-500 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-blue-800">Continuez vos efforts</p>
+                            <p class="text-sm text-blue-700">Utilisez Mrkarfour le répétiteur pour réviser les points difficiles et améliorer vos résultats.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <i class="fas fa-brain text-green-500 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-medium text-green-800">Quiz de révision</p>
+                            <p class="text-sm text-green-700">Générez des quiz personnalisés à partir de vos cours pour tester vos connaissances.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Fonctionnalités JavaScript pour les filtres
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtrage en temps réel
+    const searchInput = document.querySelector('input[type="text"]');
+    const evaluationItems = document.querySelectorAll('.divide-y > div');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            evaluationItems.forEach(item => {
+                const courseTitle = item.querySelector('h3').textContent.toLowerCase();
+                if (courseTitle.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Filtrage par matière
+    const subjectFilter = document.querySelector('select:first-of-type');
+    if (subjectFilter) {
+        subjectFilter.addEventListener('change', function(e) {
+            const selectedSubject = e.target.value;
+            // Implémentation du filtrage par matière
+            console.log('Filtre matière:', selectedSubject);
+        });
+    }
+
+    // Filtrage par note
+    const gradeFilter = document.querySelector('select:last-of-type');
+    if (gradeFilter) {
+        gradeFilter.addEventListener('change', function(e) {
+            const selectedGrade = e.target.value;
+            // Implémentation du filtrage par note
+            console.log('Filtre note:', selectedGrade);
+        });
+    }
+
+    // Animation des barres de progression
+    const progressBars = document.querySelectorAll('.bg-\\[\\#0EA7A7\\]');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+            bar.style.width = width;
+            bar.style.transition = 'width 1s ease-in-out';
+        }, 100);
+    });
+});
+// Fonctionnalités JavaScript pour les filtres améliorées
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const matiereFilter = document.getElementById('matiereFilter');
+    const noteFilter = document.getElementById('noteFilter');
+    const evaluationItems = document.querySelectorAll('.divide-y > div');
+    
+    function filterEvaluations() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const selectedMatiere = matiereFilter ? matiereFilter.value : '';
+        const selectedNote = noteFilter ? noteFilter.value : '';
+        
+        evaluationItems.forEach(item => {
+            const courseTitle = item.querySelector('h3').textContent.toLowerCase();
+            const courseMatiere = item.querySelector('.font-medium').textContent.toLowerCase();
+            const noteElement = item.querySelector('.text-lg font-bold');
+            const noteValue = noteElement ? noteElement.textContent.split('/')[0] : '';
+            
+            let show = true;
+            
+            // Filtre par recherche
+            if (searchTerm && !courseTitle.includes(searchTerm)) {
+                show = false;
+            }
+            
+            // Filtre par matière
+            if (selectedMatiere && !courseMatiere.includes(selectedMatiere.toLowerCase())) {
+                show = false;
+            }
+            
+            // Filtre par note
+            if (selectedNote && noteValue !== selectedNote) {
+                show = false;
+            }
+            
+            item.style.display = show ? 'block' : 'none';
+        });
+    }
+    
+    // Événements pour les filtres
+    if (searchInput) {
+        searchInput.addEventListener('input', filterEvaluations);
+    }
+    
+    if (matiereFilter) {
+        matiereFilter.addEventListener('change', filterEvaluations);
+    }
+    
+    if (noteFilter) {
+        noteFilter.addEventListener('change', filterEvaluations);
+    }
+    
+    // Animation des barres de progression
+    const progressBars = document.querySelectorAll('.bg-\\[\\#0EA7A7\\]');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+            bar.style.width = width;
+            bar.style.transition = 'width 1s ease-in-out';
+        }, 100);
+    });
+});
+</script>
+{% endblock %}

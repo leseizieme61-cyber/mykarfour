@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Connexion - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex flex-col md:flex-row items-center justify-center">
+  
+  <!-- Colonne gauche : accueil -->
+  <div class="w-full md:w-1/2 bg-yellow-400 p-10 flex flex-col justify-center text-black min-h-[400px]">
+    <div class="max-w-md mx-auto">
+      <h1 class="text-4xl font-extrabold mb-4">Bienvenue sur MyKarfour</h1>
+      <p class="text-lg mb-4">Connectez-vous pour accéder à votre espace personnel, votre planning intelligent et vos outils pédagogiques.</p>
+      <p class="text-sm italic text-gray-800">Nous sommes heureux de vous revoir !</p>
+    </div>
+  </div>
+
+  <!-- Colonne droite : formulaire -->
+  <div class="w-full md:w-1/2 bg-[#0EA7A7] p-10 text-white min-h-[400px] flex items-center justify-center">
+    <div class="w-full max-w-md">
+      <h2 class="text-3xl font-bold mb-6 text-center">Se connecter</h2>
+
+      <!-- Messages Django -->
+      {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for message in messages %}
+            <p class="text-center p-2 rounded 
+              {% if message.tags == 'success' %}bg-green-200 text-green-900
+              {% elif message.tags == 'error' %}bg-red-200 text-red-900
+              {% endif %}">
+              {{ message }}
+            </p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'connexion' %}" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Email -->
+        <div>
+          {{ form.username.label_tag }}
+          {{ form.username }}
+          {% if form.username.errors %}
+            <p class="text-red-200 text-sm mt-1">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Mot de passe -->
+        <div>
+          {{ form.password.label_tag }}
+          {{ form.password }}
+          {% if form.password.errors %}
+            <p class="text-red-200 text-sm mt-1">{{ form.password.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Bouton -->
+        <button type="submit"
+                class="w-full bg-white text-[#0EA7A7] font-semibold py-2 px-4 rounded hover:bg-gray-100 transition">
+          Connexion
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-white mt-6">
+        Pas encore de compte ?
+        <a href="{% url 'inscription' %}" class="underline font-semibold hover:text-white/80">Créer un compte</a>
+      </p>
+      <p class="text-center text-sm text-white mt-6">
+        Problème de connexion ?
+        <a href="{% url 'reset_password' %}" class="underline font-semibold hover:text-white/80">Mot de passe oublié</a>
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

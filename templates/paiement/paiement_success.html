@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Paiement réussi - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="text-center text-white py-20 px-6 max-w-4xl mx-auto bg-black bg-opacity-50 rounded-lg backdrop-blur-md shadow-lg">
+    <h1 class="text-5xl font-bold text-[#0EA7A7] mb-6">✅ Paiement réussi !</h1>
+    <p class="text-lg text-gray-200 mb-8">
+        Merci pour votre paiement. Votre abonnement est maintenant actif et vous pouvez profiter pleinement de toutes les fonctionnalités de MyKarfour.
+    </p>
+    {% if user.eleve.abonnement_actif %}
+        <a href="{% url 'tableau_de_bord' %}" class="inline-block bg-[#0EA7A7] text-white px-8 py-4 rounded-lg hover:bg-[#0c8f8f] transition text-lg">
+            Tableau de bord
+        </a>
+    {% else %}
+        <a href="{% url 'abonnements' %}" class="inline-block bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition text-lg">
+            🔒 Accès réservé — Payer maintenant
+        </a>
+    {% endif %}
+</section>
+{% endblock %}
+    

@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16
+    container_name: mykarfour_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: MyKarfour
+      POSTGRES_DB: mykarfour_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  web:
+    container_name: mykarfour_web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jminkoh667/mykarfour_web:latest
+
+    # ✅ Injecte les variables d'env dans le conteneur
+    env_file:
+      - .env
+
+    # ✅ Monte le code source et le fichier .env
+    volumes:
+      - .:/app
+      - .env:/app/.env  # 👈 Ceci est crucial pour django-environ
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      DJANGO_SETTINGS_MODULE: mykarfour_app.settings
+      EMAIL_HOST: maildev
+      EMAIL_PORT: 1025
+      EMAIL_USE_TLS: "False"
+      DEFAULT_FROM_EMAIL: "angominkohyirimjohann@gmail.com"
+      DB_NAME: mykarfour_db
+      DB_USER: postgres
+      DB_PASSWORD: MyKarfour
+      DB_HOST: db
+      DB_PORT: 5432
+
+    depends_on:
+      - db
+      - maildev
+
+    restart: unless-stopped
+
+    command: python manage.py runserver 0.0.0.0:8000
+
+  maildev:
+    image: maildev/maildev
+    container_name: mykarfour_maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+    restart: unless-stopped

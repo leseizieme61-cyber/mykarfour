@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Évaluer {{ eleve }} — {{ cours.titre }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <!-- En-tête -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Évaluer {{ eleve.get_full_name|default:eleve.username }}</h1>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="space-y-2 text-sm text-gray-700">
+                <p class="flex items-center">
+                    <span class="font-semibold w-20">Cours :</span>
+                    <span class="flex-1">{{ cours.titre }}</span>
+                </p>
+                <p class="flex items-center">
+                    <span class="font-semibold w-20">Élève :</span>
+                    <span class="flex-1">{{ eleve.get_full_name|default:eleve.username }}</span>
+                </p>
+                <p class="flex items-center">
+                    <span class="font-semibold w-20">Date :</span>
+                    <span class="flex-1">{{ now|date:"d/m/Y" }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire d'évaluation -->
+    <form method="post" action="{% url 'cours:evaluer_eleve' cours.pk eleve.pk %}" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Note -->
+        <div>
+            <label for="note" class="block text-sm font-medium text-gray-700 mb-2">
+                Note <span class="text-red-500">*</span>
+            </label>
+            <select id="note" name="note" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                <option value="">-- Choisir une note --</option>
+                <option value="1" {% if evaluation and evaluation.note == 1 %}selected{% endif %}>1 - Insuffisant</option>
+                <option value="2" {% if evaluation and evaluation.note == 2 %}selected{% endif %}>2 - Passable</option>
+                <option value="3" {% if evaluation and evaluation.note == 3 %}selected{% endif %}>3 - Bien</option>
+                <option value="4" {% if evaluation and evaluation.note == 4 %}selected{% endif %}>4 - Très bien</option>
+                <option value="5" {% if evaluation and evaluation.note == 5 %}selected{% endif %}>5 - Excellent</option>
+            </select>
+            <p class="mt-1 text-sm text-gray-500">Note sur 5 points</p>
+        </div>
+
+        <!-- Commentaire -->
+        <div>
+            <label for="commentaire" class="block text-sm font-medium text-gray-700 mb-2">
+                Commentaire
+            </label>
+            <textarea id="commentaire" name="commentaire" rows="4"
+                      placeholder="Commentaires sur le travail de l'élève..."
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 resize-vertical">{% if evaluation %}{{ evaluation.commentaire }}{% endif %}</textarea>
+        </div>
+
+        <!-- Quiz (optionnel) -->
+        {% if quizzes %}
+        <div>
+            <label for="quiz" class="block text-sm font-medium text-gray-700 mb-2">
+                Associer un quiz (optionnel)
+            </label>
+            <select id="quiz" name="quiz"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                <option value="">— Aucun quiz —</option>
+                {% for q in quizzes %}
+                <option value="{{ q.pk }}">{{ q.titre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <!-- Indicateur d'évaluation existante -->
+        {% if evaluation %}
+        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">
+                        Évaluation existante
+                    </h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>Une évaluation existe déjà pour cet élève. Le formulaire pré-remplit les données actuelles.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <a href="{% url 'cours:detail' cours.pk %}" 
+               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                Annuler
+            </a>
+            <button type="submit" 
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                {% if evaluation %}Mettre à jour{% else %}Enregistrer{% endif %} l'évaluation
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Styles supplémentaires pour une meilleure expérience utilisateur -->
+<style>
+    .resize-vertical {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    select:focus, textarea:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+</style>
+{% endblock %}

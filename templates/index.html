@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Accueil - MyKarfour{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="text-center text-white py-20 px-4 max-w-4xl mx-auto bg-black bg-opacity-50 rounded-lg backdrop-blur-md shadow-lg">
+  <h1 class="text-4xl md:text-5xl font-bold text-[#0EA7A7] mb-6">Votre répétiteur MrKarfour</h1>
+  
+  <p class="text-lg text-gray-200 leading-relaxed mb-8">
+    Une plateforme éducative intelligente conçue pour accompagner les élèves au quotidien selon leur emploi du temps, leurs cours, et leur rythme.
+  </p>
+
+  <!-- Boutons côte à côte -->
+  <div class="flex flex-col sm:flex-row justify-center gap-4">
+    <a href="{% url 'inscription' %}" class="bg-[#0EA7A7] text-white px-6 py-3 rounded-lg hover:bg-[#0c8f8f] transition text-sm sm:text-base">
+      Commencer maintenant
+    </a>
+    <a href="#features" class="bg-white text-[#0EA7A7] px-6 py-3 rounded-lg hover:bg-gray-100 transition text-sm sm:text-base">
+      Découvrir les fonctionnalités →
+    </a>
+  </div>
+</section>
+
+
+<!-- ETAPES -->
+<section class="mt-16 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-6">
+  <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
+    <h3 class="text-xl font-semibold text-[#0EA7A7] mb-2">1. Inscription rapide</h3>
+    <p class="text-gray-800">Créez un compte élève en quelques clics et commencez immédiatement à personnaliser votre espace.</p>
+  </div>
+  <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
+    <h3 class="text-xl font-semibold text-[#0EA7A7] mb-2">2. Planification intelligente</h3>
+    <p class="text-gray-800">Ajoutez vos cours, votre niveau scolaire et vos disponibilités. L'IA crée un planning de révision sur-mesure.</p>
+  </div>
+  <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
+    <h3 class="text-xl font-semibold text-[#0EA7A7] mb-2">3. Suivi quotidien par l'IA</h3>
+    <p class="text-gray-800">Chaque jour, recevez des rappels, exercices et quiz adaptés à votre emploi du temps et à vos progrès.</p>
+  </div>
+</section>
+
+<!-- POURQUOI MYKARFOUR -->
+<section id="features" class="mt-24 max-w-6xl mx-auto px-6 text-white text-center">
+  <h2 class="text-3xl font-bold text-[#0EA7A7] mb-6">Pourquoi choisir MyKarfour ?</h2>
+  <div class="grid md:grid-cols-2 gap-8 text-left">
+    <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
+      <h4 class="text-xl font-semibold text-[#0EA7A7] mb-2">📚 Un soutien quotidien, pas juste scolaire</h4>
+      <p class="text-gray-800">Notre IA agit comme un répétiteur personnel, vous rappelant les révisions à faire, vous posant des questions ciblées et adaptant ses conseils.</p>
+    </div>
+    <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
+      <h4 class="text-xl font-semibold text-[#0EA7A7] mb-2">🧠 Pédagogie intelligente et bienveillante</h4>
+      <p class="text-gray-800">Pas de correction directe : MyKarfour vous guide étape par étape avec des indices, favorisant la compréhension durable plutôt que l'apprentissage par cœur.</p>
+    </div>
+    <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
+      <h4 class="text-xl font-semibold text-[#0EA7A7] mb-2">📈 Suivi de progression complet</h4>
+      <p class="text-gray-800">Consultez vos progrès par matière, temps d'étude, scores de quiz, et recevez des conseils personnalisés pour vous améliorer.</p>
+    </div>
+    <div class="bg-white bg-opacity-90 p-6 rounded-lg shadow-md">
+      <h4 class="text-xl font-semibold text-[#0EA7A7] mb-2">👨‍👩‍👧 Espace parents (facultatif)</h4>
+      <p class="text-gray-800">Les parents peuvent suivre la progression de leur enfant, consulter les quiz réalisés, et recevoir des rapports d'activité réguliers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="mt-24 text-center mb-20">
+  <a href="{% url 'inscription' %}" class="inline-block bg-[#0EA7A7] text-white px-8 py-4 text-lg rounded-md hover:bg-[#0c8f8f] transition">
+    Rejoindre MyKarfour maintenant →
+  </a>
+</section>
+
+{% endblock %}

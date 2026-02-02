@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ cours.titre }} - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <!-- En-tête du cours -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 h-4"></div>
+            <div class="p-6">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between">
+                    <div class="flex-1">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ cours.titre }}</h1>
+                        <p class="text-gray-600 text-lg mb-4">{{ cours.description|default:"Aucune description disponible." }}</p>
+                        
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-graduate mr-2 text-blue-500"></i>
+                                <span>Professeur: {{ cours.professeur.user.get_full_name|default:cours.professeur.user.username }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-book mr-2 text-green-500"></i>
+                                <span>Matière: {{ cours.matiere|default:"Non spécifiée" }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-purple-500"></i>
+                                <span>Niveau: {{ cours.niveau|default:"Tous niveaux" }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar-alt mr-2 text-orange-500"></i>
+                                <span>Créé le: {{ cours.date_creation|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="mt-4 lg:mt-0 flex flex-col space-y-2">
+                        {% if user.type_utilisateur == 'professeur' and cours.professeur.user == user %}
+                            <a href="{% url 'cours:edit' cours.pk %}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                <i class="fas fa-edit mr-2"></i>Modifier le cours
+                            </a>
+                            <a href="{% url 'cours:delete' cours.pk %}" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                <i class="fas fa-trash mr-2"></i>Supprimer le cours
+                            </a>
+                        {% elif user.type_utilisateur == 'élève' %}
+                            {% if est_inscrit %}
+                                <a href="{% url 'cours:desinscrire' cours.pk %}" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Se désinscrire
+                                </a>
+                                <span class="bg-green-100 text-green-800 text-sm font-medium py-2 px-4 rounded-lg text-center">
+                                    <i class="fas fa-check-circle mr-1"></i>Inscrit
+                                </span>
+                            {% else %}
+                                <a href="{% url 'cours:inscrire' cours.pk %}" class="bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>S'inscrire au cours
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Colonne principale -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Contenu du cours avec préservation du format -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="bg-gray-800 text-white px-6 py-3">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold">Contenu du cours</h2>
+                            <div class="text-sm text-gray-300">
+                                <i class="fas fa-file-alt mr-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        {% if cours.contenu %}
+                            <div class="content-preserved">
+                                <pre class="font-['Roboto_Mono'] text-gray-800 whitespace-pre-wrap leading-relaxed text-sm md:text-base">{{ cours.contenu }}</pre>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-8">
+                                <i class="fas fa-book-open text-4xl text-gray-300 mb-3"></i>
+                                <p class="text-gray-500">Aucun contenu disponible pour le moment.</p>
+                                {% if user.type_utilisateur == 'professeur' and cours.professeur.user == user %}
+                                    <a href="{% url 'cours:edit' cours.pk %}" class="inline-block mt-3 bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                                        Ajouter du contenu
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quiz associés -->
+                {% if quiz_list %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Quiz associés</h2>
+                        {% if user.type_utilisateur == 'professeur' and cours.professeur.user == user %}
+                            <a href="{% url 'cours:quiz_create' %}" class="bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center">
+                                <i class="fas fa-plus mr-2"></i>Créer un quiz
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for quiz in quiz_list %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <h3 class="font-semibold text-gray-800 mb-2">{{ quiz.titre }}</h3>
+                            <p class="text-sm text-gray-600 mb-3">{{ quiz.description|truncatewords:15 }}</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center space-x-4">
+                                    <span>
+                                        <i class="fas fa-question-circle mr-1"></i>
+                                        {{ quiz.questions.count }} questions
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-clock mr-1"></i>
+                                        {{ quiz.duree }} min
+                                    </span>
+                                </div>
+                                {% if user.type_utilisateur == 'élève' and quiz.est_actif %}
+                                    <a href="{% url 'cours:quiz_start' quiz.pk %}" class="bg-[#0EA7A7] hover:bg-teal-600 text-white text-xs font-medium py-1 px-3 rounded transition duration-300">
+                                        Commencer
+                                    </a>
+                                {% elif user.type_utilisateur == 'professeur' and cours.professeur.user == user %}
+                                    <a href="{% url 'cours:quiz_detail' quiz.pk %}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-1 px-3 rounded transition duration-300">
+                                        Gérer
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Colonne latérale -->
+            <div class="space-y-6">
+                <!-- Statistiques -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Statistiques du cours</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">Élèves inscrits</span>
+                            <span class="text-sm font-semibold text-gray-900">
+                                {% if eleves_inscrits %}
+                                    {{ eleves_inscrits|length }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">Quiz disponibles</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ quiz_list|length }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">Date de création</span>
+                            <span class="text-sm text-gray-600">{{ cours.date_creation|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Élèves inscrits -->
+                {% if user.type_utilisateur == 'professeur' and cours.professeur.user == user and eleves_inscrits %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Élèves inscrits</h2>
+                    <div class="space-y-3 max-h-64 overflow-y-auto">
+                        {% for eleve in eleves_inscrits %}
+                        <div class="flex items-center justify-between p-2 border border-gray-100 rounded">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-user text-gray-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">{{ eleve.user.get_full_name|default:eleve.user.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ eleve.niveau|default:"Niveau non défini" }}</p>
+                                </div>
+                            </div>
+                            <a href="{% url 'cours:evaluer' cours.pk eleve.pk %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Évaluer
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Évaluation de l'élève -->
+                {% if user.type_utilisateur == 'élève' and evaluation_eleve %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Votre évaluation</h2>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-[#0EA7A7] mb-2">{{ evaluation_eleve.note }}/5</div>
+                        <div class="flex justify-center mb-3">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= evaluation_eleve.note %}
+                                    <i class="fas fa-star text-yellow-400 mx-0.5"></i>
+                                {% else %}
+                                    <i class="far fa-star text-gray-300 mx-0.5"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% if evaluation_eleve.commentaire %}
+                            <p class="text-sm text-gray-600 italic">"{{ evaluation_eleve.commentaire }}"</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions rapides -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Actions rapides</h2>
+                    <div class="space-y-2">
+                        {% if user.type_utilisateur == 'professeur' and cours.professeur.user == user %}
+                            <a href="{% url 'cours:edit' cours.pk %}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                                <i class="fas fa-edit mr-2"></i>Modifier le cours
+                            </a>
+                            <a href="{% url 'cours:quiz_create' %}" class="w-full bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                                <i class="fas fa-plus mr-2"></i>Créer un quiz
+                            </a>
+                        {% elif user.type_utilisateur == 'élève' %}
+                            {% if est_inscrit %}
+                                <a href="{% url 'cours:desinscrire' cours.pk %}" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Se désinscrire
+                                </a>
+                            {% else %}
+                                <a href="{% url 'cours:inscrire' cours.pk %}" class="w-full bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>S'inscrire
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                        <a href="{% url 'cours:list' %}" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                            <i class="fas fa-arrow-left mr-2"></i>Retour aux cours
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Style pour la préservation du format du contenu */
+.content-preserved {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    overflow-x: auto;
+}
+
+.content-preserved pre {
+    margin: 0;
+    font-family: 'roboto mono', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #1f2937;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Amélioration de la lisibilité pour certains motifs */
+.content-preserved pre strong {
+    font-weight: bold;
+    color: #1e40af;
+    background-color: #eff6ff;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+}
+
+/* Style pour les lignes de séparation */
+.content-preserved pre hr {
+    border: none;
+    border-top: 2px solid #9ca3af;
+    margin: 1.5rem 0;
+}
+
+/* Style pour les champs à remplir (tirets) */
+.content-preserved pre .field {
+    border-bottom: 1px solid #6b7280;
+    display: inline-block;
+    min-width: 150px;
+}
+
+/* Style pour les cases à cocher */
+.content-preserved pre .checkbox {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #6b7280;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Style pour les titres centrés */
+.content-preserved pre .title-center {
+    text-align: center;
+    display: block;
+    font-size: 1.25em;
+    font-weight: bold;
+    margin: 1.5rem 0;
+    color: #1e40af;
+}
+
+/* Style pour les listes */
+.content-preserved pre ul {
+    margin-left: 2rem;
+    list-style-type: none;
+}
+
+.content-preserved pre li {
+    margin: 0.5rem 0;
+    position: relative;
+}
+
+.content-preserved pre li:before {
+    content: "•";
+    color: #0EA7A7;
+    font-weight: bold;
+    position: absolute;
+    left: -1.5rem;
+}
+
+/* Rendre le contenu responsive */
+@media (max-width: 768px) {
+    .content-preserved {
+        padding: 1rem;
+    }
+    
+    .content-preserved pre {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+}
+
+/* Impression */
+@media print {
+    .content-preserved {
+        border: none;
+        background-color: white;
+        padding: 0;
+    }
+    
+    .content-preserved pre {
+        font-size: 12px;
+        line-height: 1.5;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Amélioration automatique du contenu formaté
+    const contentPreserved = document.querySelector('.content-preserved pre');
+    if (contentPreserved) {
+        let content = contentPreserved.textContent;
+        
+        // Convertir les **texte** en éléments strong
+        content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Convertir les séparateurs en lignes horizontales
+        content = content.replace(/═{20,}/g, '<hr style="border-color: #1e40af; border-width: 2px;">');
+        content = content.replace(/─{20,}/g, '<hr style="border-style: dashed;">');
+        
+        // Convertir les tirets pour les champs
+        content = content.replace(/_+\s{3,}/g, match => {
+            const length = match.length;
+            return `<span class="field" style="min-width: ${length * 8}px;">${'&nbsp;'.repeat(length)}</span>`;
+        });
+        
+        // Convertir les cases à cocher
+        content = content.replace(/\[ \]/g, '<span class="checkbox"></span>');
+        content = content.replace(/☐/g, '<span class="checkbox"></span>');
+        
+        // Convertir les listes
+        content = content.replace(/^\d+\.\s+(.*)$/gm, '<li>$1</li>');
+        content = content.replace(/^•\s+(.*)$/gm, '<li>$1</li>');
+        
+        // Remplacer les sauts de ligne multiples
+        content = content.replace(/\n{3,}/g, '\n\n');
+        
+        // Mettre à jour le contenu
+        contentPreserved.innerHTML = content;
+    }
+    
+    // Bouton d'impression du contenu
+    const printBtn = document.createElement('button');
+    printBtn.innerHTML = '<i class="fas fa-print mr-2"></i>Imprimer le contenu';
+    printBtn.className = 'w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center justify-center mt-4';
+    printBtn.onclick = function() {
+        const printContent = document.querySelector('.content-preserved').cloneNode(true);
+        const printWindow = window.open('', '_blank');
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${document.title}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .content-preserved { 
+                        font-family: 'Courier New', monospace; 
+                        white-space: pre-wrap;
+                        line-height: 1.6;
+                    }
+                    @media print {
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>${document.querySelector('h1').textContent}</h1>
+                <div class="content-preserved">${printContent.innerHTML}</div>
+                <div class="no-print">
+                    <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background: #0EA7A7; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Imprimer
+                    </button>
+                    <button onclick="window.close()" style="margin-top: 20px; margin-left: 10px; padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Fermer
+                    </button>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+    };
+    
+    // Ajouter le bouton d'impression après le contenu
+    const contentDiv = document.querySelector('.content-preserved');
+    if (contentDiv) {
+        contentDiv.parentNode.parentNode.appendChild(printBtn);
+    }
+});
+</script>
+{% endblock %}

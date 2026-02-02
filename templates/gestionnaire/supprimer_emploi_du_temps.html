@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Supprimer créneau{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto p-4 bg-white rounded shadow">
+  <h1 class="text-xl font-bold mb-4">Supprimer le créneau</h1>
+  <p class="mb-4">Voulez-vous vraiment supprimer le créneau "<strong>{{ object.titre }}</strong>" prévu le {{ object.jour_semaine }} ({{ object.heure_debut }} - {{ object.heure_fin }}) ?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+    <a href="{% url 'gestion_emploi_du_temps' %}" class="ml-3 text-sm">Annuler</a>
+  </form>
+</div>
+{% endblock %}

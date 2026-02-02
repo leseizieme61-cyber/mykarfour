@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Quiz - {{ enfant.user.username }} - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'parent_dashboard' %}">Tableau de bord</a>
+                    </li>
+                    <li class="breadcrumb-item active">Quiz de {{ enfant.user.username }}</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Quiz de {{ enfant.user.first_name }} {{ enfant.user.last_name }}
+                    </h6>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'parent_evaluations_detail' enfant.id %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-chart-line"></i> Évaluations
+                        </a>
+                        <a href="{% url 'rappels_enfant_detail' enfant.id %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-bell"></i> Rappels
+                        </a>
+                        <a href="{% url 'parent_dashboard' %}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Infos élève -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-2">
+                                    {{ enfant.user.first_name.0 }}{{ enfant.user.last_name.0 }}
+                                </div>
+                                <h6 class="font-weight-bold">{{ enfant.user.username }}</h6>
+                                <p class="text-muted">{{ enfant.classe }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="card bg-primary text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ quiz_attempts.count }}</h5>
+                                            <p class="card-text">Total quiz</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-success text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ quiz_termines_count }}</h5>
+                                            <p class="card-text">Terminés</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-info text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ moyenne_score|floatformat:1 }}%</h5>
+                                            <p class="card-text">Moyenne</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-warning text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ matieres_distinctes|length }}</h5>
+                                            <p class="card-text">Matières</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtres -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form method="get" class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="matiere" class="form-label">Matière</label>
+                                            <select name="matiere" id="matiere" class="form-select">
+                                                <option value="">Toutes les matières</option>
+                                                {% for matiere in matieres_disponibles %}
+                                                <option value="{{ matiere }}" {% if request.GET.matiere == matiere %}selected{% endif %}>
+                                                    {{ matiere }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="statut" class="form-label">Statut</label>
+                                            <select name="statut" id="statut" class="form-select">
+                                                <option value="">Tous les statuts</option>
+                                                <option value="termine" {% if request.GET.statut == 'termine' %}selected{% endif %}>Terminés</option>
+                                                <option value="en_cours" {% if request.GET.statut == 'en_cours' %}selected{% endif %}>En cours</option>
+                                                <option value="abandonne" {% if request.GET.statut == 'abandonne' %}selected{% endif %}>Abandonnés</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="periode" class="form-label">Période</label>
+                                            <select name="periode" id="periode" class="form-select">
+                                                <option value="">Toutes les périodes</option>
+                                                <option value="7" {% if request.GET.periode == '7' %}selected{% endif %}>7 derniers jours</option>
+                                                <option value="30" {% if request.GET.periode == '30' %}selected{% endif %}>30 derniers jours</option>
+                                                <option value="90" {% if request.GET.periode == '90' %}selected{% endif %}>90 derniers jours</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-filter"></i> Filtrer
+                                            </button>
+                                            <a href="{% url 'parent_quiz_detail' enfant.id %}" class="btn btn-secondary">
+                                                <i class="fas fa-times"></i> Réinitialiser
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liste des quiz -->
+                    {% if quiz_attempts %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Quiz</th>
+                                    <th>Matière</th>
+                                    <th>Questions</th>
+                                    <th>Score</th>
+                                    <th>Temps</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in quiz_attempts %}
+                                <tr>
+                                    <td>{{ attempt.date_debut|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <strong>{{ attempt.quiz.titre }}</strong>
+                                        {% if attempt.quiz.description %}
+                                            <br><small class="text-muted">{{ attempt.quiz.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">{{ attempt.matiere }}</span>
+                                    </td>
+                                    <td>
+                                        {{ attempt.questions_repondues }}/{{ attempt.quiz.questions.count }}
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-{{ attempt.progress_color }}" 
+                                                 style="width: {{ attempt.progress_percent }}%"></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if attempt.score is not None %}
+                                            <span class="badge badge-{{ attempt.score_color }}">
+                                                {{ attempt.score }}%
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if attempt.temps_passe %}
+                                            {{ attempt.temps_passe|date:"H:i:s" }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if attempt.statut == 'termine' %}
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check"></i> Terminé
+                                            </span>
+                                        {% elif attempt.statut == 'en_cours' %}
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-clock"></i> En cours
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-danger">
+                                                <i class="fas fa-times"></i> Abandonné
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            {% if attempt.statut == 'termine' %}
+                                                <button class="btn btn-outline-primary" 
+                                                        onclick="afficherDetailQuiz({{ attempt.id }})"
+                                                        title="Voir les détails">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            {% elif attempt.statut == 'en_cours' %}
+                                                <button class="btn btn-outline-success" 
+                                                        title="Continuer le quiz">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav aria-label="Pagination des quiz">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">Premier</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+                            </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Dernier</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun quiz trouvé</h5>
+                        <p class="text-muted">
+                            {{ enfant.user.first_name }} n'a pas encore passé de quiz.
+                        </p>
+                        <div class="mt-3">
+                            <p class="text-muted">
+                                <small>
+                                    💡 Les quiz sont générés automatiquement après chaque session de révision avec MrKarfour.
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Détail Quiz -->
+<div class="modal fade" id="modalDetailQuiz" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détail du Quiz</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="contenuDetailQuiz">
+                    <!-- Contenu chargé via AJAX -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Afficher le détail d'un quiz
+function afficherDetailQuiz(quizId) {
+    fetch(`/repetiteur/quiz/detail/${quizId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('contenuDetailQuiz').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>${data.quiz_titre}</h6>
+                            <p><strong>Matière:</strong> ${data.quiz_matiere}</p>
+                            <p><strong>Date:</strong> ${data.date_debut}</p>
+                            <p><strong>Temps:</strong> ${data.temps_passe || 'N/A'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Score:</strong> ${data.score || 'N/A'}%</p>
+                            <p><strong>Questions:</strong> ${data.questions_repondues}/${data.total_questions}</p>
+                            <p><strong>Statut:</strong> ${data.statut_label}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Réponses détaillées:</h6>
+                    <div class="list-group">
+                        ${data.reponses.map(rep => `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Q${rep.numero}: ${rep.question_texte}</span>
+                                    <span class="badge badge-${rep.correcte ? 'success' : 'danger'}">
+                                        ${rep.correcte ? '✓ Correct' : '✗ Incorrect'}
+                                    </span>
+                                </div>
+                                ${rep.reponse_choisie ? `<small class="text-muted">Votre réponse: ${rep.reponse_choisie}</small>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                $('#modalDetailQuiz').modal('show');
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement du détail');
+        });
+}
+</script>
+{% endblock %}

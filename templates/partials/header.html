@@ -1,0 +1,123 @@
+{% load static %}
+<header class="fixed top-0 left-0 w-full bg-primary text-white shadow-md z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    
+    <!-- Logo -->
+    <a href="{% url 'accueil' %}" class="flex items-center space-x-2 bg-white rounded-md p-1 border-2 border-secondary shadow-sm">
+      <img src="{% static 'img/Logo MyKarfour.png' %}" alt="MyKarfour" class="h-10 w-auto">
+    </a>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden lg:flex items-center space-x-4 font-medium">
+      {% if user.is_authenticated %}
+        <a href="{% url 'accueil' %}" class="px-3 py-2 rounded hover:bg-secondary hover:text-primary transition">Accueil</a>
+        <a href="{% url 'profil' %}" class="px-3 py-2 rounded hover:bg-secondary hover:text-primary transition">Mon Profil</a>
+
+        {% if user.type_utilisateur == 'élève' %}
+          <a href="{% url 'tableau_de_bord' %}" class="px-3 py-2 rounded hover:bg-secondary hover:text-primary transition">Tableau de bord</a>
+          <a href="{% url 'gestion_emploi_du_temps' %}" class="px-3 py-2 rounded hover:bg-secondary hover:text-primary transition">Emploi du temps</a>
+        {% endif %}
+
+        {% if user.type_utilisateur == 'parent' %}
+          <a href="{% url 'profil' %}" class="px-3 py-2 rounded hover:bg-secondary hover:text-primary transition">Mes Enfants</a>
+        {% endif %}
+
+        <!-- Dropdown utilisateur -->
+        <details class="relative">
+          <summary class="list-none px-3 py-2 rounded cursor-pointer hover:bg-secondary hover:text-primary transition flex items-center">
+            <i class="fas fa-user-circle mr-1"></i>
+            {{ user.get_full_name|default:user.username }} ▾
+          </summary>
+
+          <div class="absolute bg-white text-black mt-2 rounded shadow-lg z-50 min-w-[180px] right-0 border border-secondary">
+            <a href="{% url 'profil' %}" class="block px-4 py-2 hover:bg-secondary hover:text-primary">
+              <i class="fas fa-user mr-2"></i>Mon Profil
+            </a>
+            <div class="border-t my-1"></div>
+            <form method="post" action="{% url 'deconnexion' %}">
+              {% csrf_token %}
+              <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-secondary hover:text-primary flex items-center">
+                <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+              </button>
+            </form>
+          </div>
+        </details>
+
+      {% else %}
+        <!-- Non connecté -->
+        <a href="{% url 'accueil' %}" class="px-3 py-2 rounded hover:bg-secondary hover:text-primary transition">Accueil</a>
+        <a href="{% url 'abonnements' %}" class="px-3 py-2 rounded hover:bg-secondary hover:text-primary transition">Tarifs</a>
+
+        <details class="relative">
+          <summary class="list-none px-3 py-2 rounded cursor-pointer hover:bg-secondary hover:text-primary transition">
+            Plus ▾
+          </summary>
+          <div class="absolute bg-white text-black mt-2 rounded shadow-lg z-50 min-w-[180px] border border-secondary">
+            <a href="{% url 'fonctionnalites' %}" class="block px-4 py-2 hover:bg-secondary hover:text-primary">Fonctionnalités</a>
+            <a href="{% url 'comment_ca_marche' %}" class="block px-4 py-2 hover:bg-secondary hover:text-primary">Comment ça marche ?</a>
+            <a href="{% url 'a_propos' %}" class="block px-4 py-2 hover:bg-secondary hover:text-primary">À propos</a>
+            <a href="{% url 'contact' %}" class="block px-4 py-2 hover:bg-secondary hover:text-primary">Contact</a>
+          </div>
+        </details>
+
+        <a href="{% url 'connexion'%}" class="px-4 py-2 rounded-md bg-white text-primary hover:bg-secondary hover:text-primary transition">Connexion</a>
+        <a href="{% url 'inscription'%}" class="px-4 py-2 rounded-md bg-secondary text-primary border border-white hover:bg-white hover:text-primary transition">
+          Inscription
+        </a>
+      {% endif %}
+    </nav>
+
+    <!-- Bouton menu mobile -->
+    <button id="menu-toggle" class="lg:hidden focus:outline-none" aria-label="Menu">
+      <svg class="w-7 h-7" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Menu mobile -->
+  <div id="mobile-menu" class="hidden lg:hidden px-4 pb-4 font-medium space-y-2 bg-primary">
+    {% if user.is_authenticated %}
+      <a href="{% url 'accueil' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Accueil</a>
+      <a href="{% url 'profil' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Mon Profil</a>
+      {% if user.type_utilisateur == 'élève' %}
+        <a href="{% url 'tableau_de_bord' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Tableau de bord</a>
+        <a href="{% url 'gestion_emploi_du_temps' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Emploi du temps</a>
+      {% endif %}
+      {% if user.type_utilisateur == 'parent' %}
+        <a href="{% url 'profil' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Mes Enfants</a>
+      {% endif %}
+      <form method="post" action="{% url 'deconnexion' %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full text-left px-4 py-2 bg-white text-primary rounded hover:bg-secondary hover:text-primary transition">
+          Déconnexion
+        </button>
+      </form>
+    {% else %}
+      <a href="{% url 'accueil' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Accueil</a>
+      <a href="{% url 'abonnements' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Tarifs</a>
+      <a href="{% url 'fonctionnalites' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Fonctionnalités</a>
+      <a href="{% url 'comment_ca_marche' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Comment ça marche ?</a>
+      <a href="{% url 'a_propos' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">À propos</a>
+      <a href="{% url 'contact' %}" class="block px-4 py-2 text-white rounded hover:bg-secondary hover:text-primary transition">Contact</a>
+      <a href="{% url 'connexion'%}" class="block px-4 py-2 bg-white text-primary rounded hover:bg-secondary hover:text-primary transition">Connexion</a>
+      <a href="{% url 'inscription'%}" class="block px-4 py-2 bg-secondary text-primary border border-white rounded hover:bg-white hover:text-primary transition">
+        Inscription
+      </a>
+    {% endif %}
+  </div>
+
+  <script>
+    const toggleBtn = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    toggleBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  </script>
+</header>
+
+<!-- Padding compensateur -->
+<main class="pt-24">
+  {% block content %}{% endblock %}
+</main>

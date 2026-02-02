@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Rappels - {{ enfant.user.username }} - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'parent_dashboard' %}">Tableau de bord</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'rappels_list' %}">Rappels</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ enfant.user.username }}</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Rappels pour {{ enfant.user.first_name }} {{ enfant.user.last_name }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Infos élève -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-2">
+                                    {{ enfant.user.first_name.0 }}{{ enfant.user.last_name.0 }}
+                                </div>
+                                <h6 class="font-weight-bold">{{ enfant.user.username }}</h6>
+                                <p class="text-muted">{{ enfant.classe }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="card bg-primary text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ total_rappels }}</h5>
+                                            <p class="card-text">Total</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-success text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ rappels_envoyes }}</h5>
+                                            <p class="card-text">Envoyés</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-info text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ enfant.abonnement_actif|yesno:"Actif,Inactif" }}</h5>
+                                            <p class="card-text">Abonnement</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-warning text-white">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">{{ enfant.user.last_login|date:"d/m" }}</h5>
+                                            <p class="card-text">Dernière connexion</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions rapides -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#modalRappelManuel">
+                                    <i class="fas fa-paper-plane"></i> Envoyer un rappel
+                                </button>
+                                <a href="{% url 'parent_evaluations_detail' enfant.id %}" class="btn btn-info">
+                                    <i class="fas fa-chart-line"></i> Voir les évaluations
+                                </a>
+                                <a href="{% url 'parent_quiz_detail' enfant.id %}" class="btn btn-success">
+                                    <i class="fas fa-question-circle"></i> Voir les quiz
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liste des rappels -->
+                    {% if rappels %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date/Heure</th>
+                                    <th>Titre</th>
+                                    <th>Session associée</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rappel in rappels %}
+                                <tr>
+                                    <td>{{ rappel.date_rappel|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <span class="font-weight-bold">{{ rappel.titre }}</span>
+                                        {% if "inactivité" in rappel.titre %}
+                                            <span class="badge badge-warning ml-2">Inactivité</span>
+                                        {% elif "hebdomadaire" in rappel.titre %}
+                                            <span class="badge badge-info ml-2">Hebdomadaire</span>
+                                        {% elif "session" in rappel.titre %}
+                                            <span class="badge badge-primary ml-2">Session</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if rappel.session_programmee %}
+                                            <a href="#" class="text-decoration-none">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                {{ rappel.session_programmee.titre }}
+                                                <small class="text-muted">({{ rappel.session_programmee.emploi_temps.matiere }})</small>
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if rappel.envoye %}
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check"></i> Envoyé
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-clock"></i> En attente
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" 
+                                                    onclick="afficherDetailRappel({{ rappel.id }})"
+                                                    title="Voir le détail">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            {% if not rappel.envoye %}
+                                            <button class="btn btn-outline-success" 
+                                                    onclick="renvoyerRappel({{ rappel.id }})"
+                                                    title="Renvoyer maintenant">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun rappel pour {{ enfant.user.first_name }}</h5>
+                        <p class="text-muted">
+                            Les rappels apparaîtront ici dès qu'ils seront programmés ou envoyés.
+                        </p>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalRappelManuel">
+                            <i class="fas fa-plus"></i> Envoyer le premier rappel
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rappel Manuel -->
+<div class="modal fade" id="modalRappelManuel" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Envoyer un rappel à {{ enfant.user.first_name }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formRappelManuel">
+                <div class="modal-body">
+                    <input type="hidden" name="eleve_id" value="{{ enfant.id }}">
+                    
+                    <div class="form-group">
+                        <label for="message">Message personnalisé</label>
+                        <textarea name="message" id="message" class="form-control" rows="4" 
+                                  placeholder="Ex: N'oublie pas de réviser tes maths aujourd'hui !" required></textarea>
+                        <small class="form-text text-muted">
+                            Soyez encourageur et précis dans votre message.
+                        </small>
+                    </div>
+                    
+                    <!-- Messages prédéfinis -->
+                    <div class="form-group">
+                        <label>Messages rapides</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    onclick="setMessage('Pense à faire ta révision quotidienne !')">
+                                📚 Révision quotidienne
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    onclick="setMessage('N\'oublie pas ton quiz de maths !')">
+                                🧮 Quiz maths
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    onclick="setMessage('Super travail cette semaine ! Continue comme ça !')">
+                                🌟 Encouragement
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Envoyer le rappel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Détail Rappel -->
+<div class="modal fade" id="modalDetailRappel" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détail du rappel</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="contenuDetailRappel">
+                    <!-- Contenu chargé via AJAX -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Définir le message dans le textarea
+function setMessage(message) {
+    document.getElementById('message').value = message;
+}
+
+// Afficher le détail d'un rappel
+function afficherDetailRappel(rappelId) {
+    fetch(`/repetiteur/rappels/detail/${rappelId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('contenuDetailRappel').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Date:</strong> ${data.date_rappel}<br>
+                            <strong>Titre:</strong> ${data.titre}<br>
+                            <strong>Statut:</strong> ${data.envoye ? '<span class="badge badge-success">Envoyé</span>' : '<span class="badge badge-warning">En attente</span>'}
+                        </div>
+                        <div class="col-md-6">
+                            ${data.session ? `<strong>Session:</strong> ${data.session}<br>` : ''}
+                            ${data.eleve ? `<strong>Élève:</strong> ${data.eleve}<br>` : ''}
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Message envoyé:</h6>
+                    <div class="border rounded p-3 bg-light">
+                        <pre class="mb-0">${data.message}</pre>
+                    </div>
+                `;
+                $('#modalDetailRappel').modal('show');
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement du détail');
+        });
+}
+
+// Soumission du formulaire de rappel manuel
+document.getElementById('formRappelManuel')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{% url "envoyer_rappel_manuel" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Rappel envoyé avec succès !');
+            $('#modalRappelManuel').modal('hide');
+            this.reset();
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'envoi du rappel');
+    });
+});
+
+// Helper pour obtenir le CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

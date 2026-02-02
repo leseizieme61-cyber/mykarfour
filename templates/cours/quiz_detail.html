@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ quiz.titre }} - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- En-tête du quiz -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">{{ quiz.titre }}</h1>
+                    <p class="text-gray-600 mt-2">{{ quiz.description }}</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2 text-blue-500"></i>
+                            <span>{{ quiz.duree }} minutes</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-question-circle mr-2 text-green-500"></i>
+                            <span>{{ quiz.questions.count }} questions</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-star mr-2 text-yellow-500"></i>
+                            <span>{{ quiz.points_max }} points max</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">Commencer le quiz</h2>
+                    <p class="text-gray-600 text-sm">Testez vos connaissances avec ce quiz.</p>
+                </div>
+                
+                {% if request.user.is_authenticated %}
+                    {% if request.user.type_utilisateur == "élève" %}
+                        <!-- Pour les élèves -->
+                        <div class="flex space-x-3">
+                            {% if quiz.est_actif %}
+                                <a href="{% url 'cours:quiz_start' quiz.pk %}" 
+                                   class="bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                                    Commencer le quiz
+                                </a>
+                            {% else %}
+                                <button disabled class="bg-gray-400 text-white font-medium py-2 px-6 rounded-md cursor-not-allowed">
+                                    Quiz désactivé
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% elif request.user.type_utilisateur == "professeur" and quiz.created_by == request.user %}
+                        <!-- Pour le professeur propriétaire -->
+                        <div class="flex space-x-3">
+                            <a href="{% url 'cours:quiz_update' quiz.pk %}" 
+                               class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                                Modifier le quiz
+                            </a>
+                            <a href="{% url 'cours:add_question' quiz.pk %}" 
+                               class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                                Ajouter une question
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" 
+                       class="bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                        Se connecter pour participer
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Liste des questions -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Questions ({{ quiz.questions.count }})</h2>
+            
+            {% if quiz.questions.all %}
+            <div class="space-y-4">
+                {% for question in quiz.questions.all %}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="font-medium text-gray-700">
+                            Question {{ question.ordre }} - {{ question.points }} point{{ question.points|pluralize }}
+                        </h3>
+                        {% if request.user.type_utilisateur == "professeur" and quiz.created_by == request.user %}
+                        <div class="flex space-x-2">
+                            <a href="#" class="text-blue-600 hover:text-blue-800 text-sm">Modifier</a>
+                            <a href="#" class="text-red-600 hover:text-red-800 text-sm">Supprimer</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-gray-800 mb-3">{{ question.texte }}</p>
+                    
+                    {% if question.explication %}
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
+                        <p class="text-blue-700 text-sm"><strong>Explication :</strong> {{ question.explication }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Choix de réponse -->
+                    <div class="space-y-2">
+                        {% for choice in question.choices.all %}
+                        <div class="flex items-center space-x-3 p-2 {% if choice.est_correcte %}bg-green-50 border border-green-200 rounded{% endif %}">
+                            <div class="flex items-center justify-center w-6 h-6 rounded-full 
+                                        {% if choice.est_correcte %}bg-green-500 text-white{% else %}bg-gray-200 text-gray-600{% endif %} 
+                                        text-xs font-medium">
+                                {{ forloop.counter }}
+                            </div>
+                            <span class="{% if choice.est_correcte %}text-green-700 font-medium{% else %}text-gray-700{% endif %}">
+                                {{ choice.texte }}
+                                {% if choice.est_correcte and request.user.type_utilisateur == "professeur" %}
+                                <span class="text-green-600 text-sm ml-2">✓ Correct</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-question-circle text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-600">Aucune question n'a été ajoutée à ce quiz.</p>
+                {% if request.user.type_utilisateur == "professeur" and quiz.created_by == request.user %}
+                <a href="{% url 'cours:add_question' quiz.pk %}" 
+                   class="inline-block mt-4 bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                    Ajouter la première question
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Informations supplémentaires pour le professeur -->
+        {% if request.user.type_utilisateur == "professeur" and quiz.created_by == request.user %}
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Statistiques du quiz</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600">{{ quiz.quizattempt_set.count }}</div>
+                    <div class="text-sm text-blue-600">Tentatives</div>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">
+                        {% if quiz.quizattempt_set.finished.count > 0 %}
+                            {{ quiz.quizattempt_set.finished.avg_score|default:0|floatformat:1 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-green-600">Score moyen</div>
+                </div>
+                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                    <div class="text-2xl font-bold text-purple-600">{{ quiz.questions.count }}</div>
+                    <div class="text-sm text-purple-600">Questions</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

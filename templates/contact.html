@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Contact - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="py-6 px-6 max-w-6xl mx-auto">
+  <div class="flex flex-col md:flex-row rounded-lg overflow-hidden shadow-lg">
+
+    <!-- Colonne gauche : Info & message -->
+    <div class="w-full md:w-1/2 bg-yellow-400 p-10 text-black flex flex-col justify-center">
+      <h1 class="text-4xl font-bold mb-6">Contactez-nous</h1>
+      <p class="text-lg mb-4">
+        Vous avez une question, une suggestion ou besoin d’aide ?
+      </p>
+      <p class="text-lg mb-4">
+        Remplissez simplement le formulaire ci-contre et notre équipe vous répondra dans les plus brefs délais.
+      </p>
+      <p class="text-sm text-gray-800 italic">
+        Disponible du lundi au vendredi, de 9h à 18h.
+      </p>
+    </div>
+
+    <!-- Colonne droite : Formulaire -->
+    <div class="w-full md:w-1/2 bg-[#0EA7A7] p-10 text-white">
+      <form action="{% url 'contact' %}" method="post" class="space-y-6">
+        {% csrf_token %}
+        <div>
+          <label for="name" class="block mb-2 font-semibold">Nom</label>
+          <input type="text" id="name" name="name" required
+                 class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-white text-black">
+        </div>
+
+        <div>
+          <label for="email" class="block mb-2 font-semibold">Email</label>
+          <input type="email" id="email" name="email" required
+                 class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-white text-black">
+        </div>
+
+        <div>
+          <label for="message" class="block mb-2 font-semibold">Message</label>
+          <textarea id="message" name="message" rows="5" required
+                    class="w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-white text-black"></textarea>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-white text-[#0EA7A7] font-bold py-3 rounded hover:bg-gray-100 transition">
+          Envoyer
+        </button>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

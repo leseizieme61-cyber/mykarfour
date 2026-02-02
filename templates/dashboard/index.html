@@ -1,0 +1,942 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>MyKarfour - Tableau de Bord</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+    <style>
+        /* Styles pour les skeletons */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-text {
+            height: 12px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-title {
+            height: 20px;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-card {
+            height: 120px;
+            border-radius: 8px;
+        }
+
+        .skeleton-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        /* Styles pour le contenu dynamique */
+        .dynamic-content {
+            display: none;
+        }
+
+        .dynamic-content.active {
+            display: block;
+        }
+
+        .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            border-left: 4px solid #fff;
+        }
+
+        /* Badge pour notifications */
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(25%, -25%);
+            font-size: 0.7rem;
+            padding: 0.25em 0.4em;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        /* Animation pour les sessions en cours */
+        .session-active {
+            border-left: 4px solid #28a745 !important;
+        }
+
+        .session-badge-active {
+            background-color: #28a745;
+            color: white;
+        }
+
+        /* COULEURS MRKARFOUR */
+        :root {
+            --mrkarfour-primary: #0EA7A7;
+            --mrkarfour-secondary: #c9021b;
+              --mrkarfour-tree: #E6C200;
+            --mrkarfour-primary-light: #0EA7A7;
+            --mrkarfour-primary-dark: #0A7A7A;
+        }
+
+        /* Styles personnalisés pour MrKarfour */
+        .mrkarfour-card {
+            background: linear-gradient(135deg, var(--mrkarfour-primary) 0%, var(--mrkarfour-primary-dark) 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(14, 167, 167, 0.3);
+        }
+
+        .session-card:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+            box-shadow: 0 0.5rem 1rem rgba(14, 167, 167, 0.15);
+        }
+
+        /* Sidebar avec couleur Mrkarfour */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--mrkarfour-primary) 0%, var(--mrkarfour-primary-dark) 100%) !important;
+        }
+
+        /* Boutons Mrkarfour */
+        .btn-mrkarfour {
+            background-color: var(--mrkarfour-primary);
+            border-color: var(--mrkarfour-primary);
+            color: white;
+        }
+
+        .btn-mrkarfour:hover {
+            background-color: var(--mrkarfour-primary-dark);
+            border-color: var(--mrkarfour-primary-dark);
+            color: white;
+        }
+
+        .btn-mrkarfour-secondary {
+            background-color: var(--mrkarfour-tree);
+            border-color: var(--mrkarfour-tree);
+            color: #333;
+        }
+
+        .btn-mrkarfour-secondary:hover {
+            background-color: #E6C200;
+            border-color: #E6C200;
+            color: #333;
+        }
+
+        /* Badges avec couleurs Mrkarfour */
+        .badge-mrkarfour {
+            background-color: var(--mrkarfour-primary);
+            color: white;
+        }
+
+        .badge-mrkarfour-secondary {
+            background-color: var(--mrkarfour-secondary);
+            color: #333;
+        }
+
+        /* Bordures colorées */
+        .border-left-mrkarfour {
+            border-left: 4px solid var(--mrkarfour-primary) !important;
+        }
+
+        .border-left-mrkarfour-secondary {
+            border-left: 4px solid var(--mrkarfour-secondary) !important;
+        }
+
+        /* Text colors */
+        .text-mrkarfour {
+            color: var(--mrkarfour-primary) !important;
+        }
+
+        .text-mrkarfour-secondary {
+            color: var(--mrkarfour-secondary) !important;
+        }
+
+        /* Background colors */
+        .bg-mrkarfour {
+            background-color: var(--mrkarfour-primary) !important;
+        }
+
+        .bg-mrkarfour-secondary {
+            background-color: var(--mrkarfour-secondary) !important;
+        }
+
+        /* Cartes avec accent Mrkarfour */
+        .card-header.mrkarfour-header {
+            background: linear-gradient(135deg, var(--mrkarfour-primary) 0%, var(--mrkarfour-primary-dark) 100%);
+            color: white;
+            border-bottom: none;
+        }
+
+        /* Progress bars */
+        .progress-bar-mrkarfour {
+            background-color: var(--mrkarfour-primary);
+        }
+
+        /* Override des couleurs primaires de SB Admin 2 */
+        .btn-primary {
+            background-color: var(--mrkarfour-primary);
+            border-color: var(--mrkarfour-primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--mrkarfour-primary-dark);
+            border-color: var(--mrkarfour-primary-dark);
+        }
+
+        .text-primary {
+            color: var(--mrkarfour-primary) !important;
+        }
+
+        .border-left-primary {
+            border-left: 4px solid var(--mrkarfour-primary) !important;
+        }
+
+        .bg-primary {
+            background-color: var(--mrkarfour-primary) !important;
+        }
+
+        /* Alertes personnalisées */
+        .alert-mrkarfour {
+            background-color: rgba(14, 167, 167, 0.1);
+            border-color: var(--mrkarfour-primary);
+            color: var(--mrkarfour-primary-dark);
+        }
+    </style>
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#" onclick="showSection('dashboard')">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">MyKarfour</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="#" onclick="showSection('dashboard')">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Tableau de Bord</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Gestion
+            </div>
+
+            {% if user.type_utilisateur == 'élève' %}
+            <!-- Nav Item - Répétiteur IA -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'repetiteur_chat' %}">
+                    <i class="fas fa-fw fa-robot"></i>
+                    <span>Répétiteur MrKarfour</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Sessions de révision -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'tableau_sessions' %}">
+                    <i class="fas fa-fw fa-calendar-check"></i>
+                    <span>Mes Révisions</span>
+                    {% if sessions_a_venir and sessions_a_venir|length > 0 %}
+                    <span class="badge badge-mrkarfour-secondary notification-badge">{{ sessions_a_venir|length }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Nav Item - Emploi du temps -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'gestion_emploi_du_temps' %}">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
+                    <span>Emploi du Temps</span></a>
+            </li>
+
+            <!-- Nav Item - Cours -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cours:list' %}">
+                    <i class="fas fa-fw fa-book"></i>
+                    <span>Mes Cours</span></a>
+            </li>
+
+            <!-- Nav Item - Quiz -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cours:quiz_list' %}">
+                    <i class="fas fa-fw fa-question-circle"></i>
+                    <span>Quiz</span></a>
+            </li>
+
+            <!-- Nav Item - Mes évaluations -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'cours:mes_evaluations' %}">
+                    <i class="fas fa-fw fa-question-circle"></i>
+                    <span>Mes évaluations</span></a>
+            </li>
+
+            {% endif %}
+
+            {% if user.type_utilisateur == 'parent' %}
+            <!-- Nav Item - Enfants -->
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Mes Enfants</span></a>
+            </li>
+
+            <!-- Nav Item - Répétiteur IA (pour parent) -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'repetiteur_chat' %}">
+                    <i class="fas fa-fw fa-robot"></i>
+                    <span>Répétiteur MrKarfour</span>
+                </a>
+            </li>
+            {% endif %}
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Compte
+            </div>
+
+            <!-- Nav Item - Notifications -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'notifications' %}">
+                    <i class="fas fa-fw fa-bell"></i>
+                    <span>Notifications</span>
+                    {% if notifications and notifications|length > 0 %}
+                    <span class="badge badge-mrkarfour-secondary notification-badge">{{ notifications|length }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Nav Item - Abonnement -->
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-fw fa-credit-card"></i>
+                    <span>Abonnement</span></a>
+            </li>
+
+            <!-- Nav Item - Profil -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'profil' %}">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>Mon Profil</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'tableau_de_bord' %}">Tableau de Bord</a></li>
+                            <li class="breadcrumb-item active" id="current-section">Accueil</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - Notifications -->
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell fa-fw"></i>
+                                <!-- Counter - Alerts -->
+                                {% if notifications and notifications|length > 0 %}
+                                <span class="badge badge-mrkarfour-secondary badge-counter">{{ notifications|length }}+</span>
+                                {% endif %}
+                            </a>
+                            <!-- Dropdown - Notifications -->
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header">
+                                    Centre de notifications
+                                </h6>
+                                {% for notification in notifications|slice:":5" %}
+                                <a class="dropdown-item d-flex align-items-center" href="{% url 'notification_detail' notification.id %}">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-mrkarfour">
+                                            <i class="fas fa-{{ notification.icon|default:'bell' }} text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">{{ notification.date_creation|date:"d/m/Y H:i" }}</div>
+                                        <span class="font-weight-bold">{{ notification.titre }}</span>
+                                    </div>
+                                </a>
+                                {% empty %}
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Aucune notification</a>
+                                {% endfor %}
+                                <a class="dropdown-item text-center small text-gray-500" href="{% url 'notifications' %}">Voir toutes les notifications</a>
+                            </div>
+                        </li>
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    {{ user.get_full_name|default:user.username }}
+                                </span>
+                                <img class="img-profile rounded-circle" src="{% static 'img/undraw_profile.svg' %}">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="{% url 'profil' %}">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profil
+                                </a>
+                                <a class="dropdown-item" href="{% url 'parametres' %}">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Paramètres
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Déconnexion
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div class="mb-4" id="messages-container">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Section Dashboard (Par défaut) -->
+                    <div id="dashboard-section" class="dynamic-content active">
+                        <!-- Page Heading -->
+                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                            <h1 class="h3 mb-0 text-gray-800">Tableau de Bord</h1>
+                            <span class="d-none d-sm-inline-block btn btn-sm btn-{% if user.type_utilisateur == 'élève' and eleve.abonnement_actif %}mrkarfour{% else %}mrkarfour-secondary{% endif %} shadow-sm">
+                                <i class="fas fa-{% if user.type_utilisateur == 'élève' and eleve.abonnement_actif %}check{% else %}exclamation{% endif %}-circle fa-sm text-white-50"></i>
+                                {% if user.type_utilisateur == 'élève' %}
+                                    {{ eleve.abonnement_actif|yesno:"Abonnement Actif,Abonnement Requis" }}
+                                {% else %}
+                                    {{ user.type_utilisateur|title }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <!-- Mrkarfour (Répétiteur IA) -->
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <div class="card mrkarfour-card shadow mb-4">
+                                    <div class="card-body d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h5 class="font-weight-bold text-white mb-1">Mrkarfour — Votre Répétiteur</h5>
+                                            {% if repetiteur_access %}
+                                              <p class="mb-0 text-white-50">{{ salutation_repetiteur }}</p>
+                                              <small class="text-white-50">Sessions programmées automatiquement selon votre emploi du temps</small>
+                                            {% else %}
+                                              <p class="mb-0 text-white-50">Accès réservé aux abonnés</p>
+                                              <small class="text-white-50">Souscrivez pour bénéficier des sessions de révision intelligentes</small>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            {% if repetiteur_access %}
+                                              <a href="{% url 'repetiteur_chat' %}" class="btn btn-mrkarfour-secondary">
+                                                  <i class="fas fa-robot mr-2"></i>Ouvrir Mrkarfour
+                                              </a>
+                                            {% else %}
+                                              <a href="#" class="btn btn-mrkarfour-secondary">
+                                                  <i class="fas fa-crown mr-2"></i>Souscrire
+                                              </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Sessions Programmes par MrKarfour -->
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                {% if session_en_cours %}
+                                <div class="card border-left-success shadow mb-4">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    <i class="fas fa-play-circle mr-1"></i>Session en cours
+                                                </div>
+                                                <div class="h5 mb-1 font-weight-bold text-gray-800">
+                                                    {{ session_en_cours.emploi_temps.matiere }} - {{ session_en_cours.titre }}
+                                                </div>
+                                                <div class="text-xs text-muted">
+                                                    Débutée à {{ session_en_cours.date_programmation|date:"H:i" }}
+                                                </div>
+                                                {% if session_en_cours.objectifs %}
+                                                <div class="text-sm text-gray-600 mt-2">
+                                                    {{ session_en_cours.objectifs }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-auto">
+                                                <a href="{% url 'repetiteur_chat' %}?session={{ session_en_cours.id }}" 
+                                                   class="btn btn-success btn-circle btn-lg">
+                                                    <i class="fas fa-play"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if sessions_a_venir %}
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3 d-flex justify-content-between align-items-center mrkarfour-header">
+                                        <h6 class="m-0 font-weight-bold text-white">
+                                            <i class="fas fa-calendar-check mr-2"></i>
+                                            Sessions de révision programmées
+                                        </h6>
+                                        <span class="badge badge-mrkarfour-secondary">{{ sessions_a_venir|length }} session(s)</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            {% for session in sessions_a_venir %}
+                                            <div class="col-xl-4 col-md-6 mb-4">
+                                                <div class="card session-card border-left-{% if session.est_en_cours %}success{% else %}mrkarfour{% endif %} shadow h-100">
+                                                    <div class="card-body">
+                                                        <div class="row no-gutters align-items-center">
+                                                            <div class="col mr-2">
+                                                                <div class="text-xs font-weight-bold text-{% if session.est_en_cours %}success{% else %}mrkarfour{% endif %} text-uppercase mb-1">
+                                                                    {{ session.emploi_temps.matiere }}
+                                                                </div>
+                                                                <div class="h6 mb-0 font-weight-bold text-gray-800">{{ session.titre }}</div>
+                                                                <div class="text-xs text-muted mt-1">
+                                                                    <i class="fas fa-clock mr-1"></i>
+                                                                    {{ session.date_programmation|date:"l d/m à H:i" }}
+                                                                </div>
+                                                                {% if session.objectifs %}
+                                                                <div class="text-xs text-gray-600 mt-2">
+                                                                    {{ session.objectifs|truncatewords:15 }}
+                                                                </div>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <i class="fas fa-{% if session.est_en_cours %}play-circle text-success{% else %}clock text-mrkarfour{% endif %} fa-2x"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-3">
+                                                            <a href="{% url 'repetiteur_chat' %}?session={{ session.id }}" 
+                                                               class="btn btn-sm btn-{% if session.est_en_cours %}success{% else %}mrkarfour{% endif %} btn-block">
+                                                                <i class="fas fa-{% if session.est_en_cours %}play{% else %}arrow-right{% endif %} mr-1"></i>
+                                                                {% if session.est_en_cours %}Continuer{% else %}Démarrer{% endif %}
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Section Progression de la semaine -->
+                                {% if semaine_progression and semaine_progression.total > 0 %}
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3 mrkarfour-header">
+                                        <h6 class="m-0 font-weight-bold text-white">Progression de la semaine</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <h4 class="small font-weight-bold">
+                                            Sessions terminées
+                                            <span class="float-right">{{ semaine_progression.terminees }}/{{ semaine_progression.total }}</span>
+                                        </h4>
+                                        <div class="progress mb-4">
+                                            <div class="progress-bar progress-bar-mrkarfour" role="progressbar" 
+                                                 style="width: {{ semaine_progression.pourcentage }}%"
+                                                 aria-valuenow="{{ semaine_progression.pourcentage }}" aria-valuemin="0" aria-valuemax="100">
+                                                {{ semaine_progression.pourcentage }}%
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-xs text-muted">
+                                                {{ aujourdhui }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Content Row -->
+                        <div class="row">
+                            {% if user.type_utilisateur == 'élève' %}
+                            <!-- Statistiques Élève -->
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-mrkarfour shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-mrkarfour text-uppercase mb-1">
+                                                    Cours </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ statistiques.cours_crees }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-book fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-mrkarfour shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-mrkarfour text-uppercase mb-1">
+                                                    Quiz Complétés</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ statistiques.quiz_completes }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-mrkarfour shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-mrkarfour text-uppercase mb-1">
+                                                    Sessions Programmes</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ statistiques.sessions_programmees }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if paiement_actif %}
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-mrkarfour-secondary shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-mrkarfour-secondary text-uppercase mb-1">
+                                                    Abonnement Valide Jusqu'au</div>
+                                                <div class="h6 mb-0 font-weight-bold text-gray-800">
+                                                    {{ paiement_actif.date_fin_abonnement|date:"d/m/Y" }}
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% elif user.type_utilisateur == 'parent' %}
+                            <!-- Statistiques Parent -->
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-mrkarfour shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-mrkarfour text-uppercase mb-1">
+                                                    Enfants Inscrits</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ enfants_avec_statistiques|length }}</div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-mrkarfour shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-mrkarfour text-uppercase mb-1">
+                                                    Sessions Terminées</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    {% with enfants_avec_statistiques|first as first_enfant %}
+                                                        {{ first_enfant.sessions_terminees }}
+                                                    {% endwith %}
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Section Emploi du Temps Aujourd'hui -->
+                        {% if user.type_utilisateur == 'élève' and emploi_du_temps %}
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3 mrkarfour-header">
+                                        <h6 class="m-0 font-weight-bold text-white">
+                                            <i class="fas fa-calendar-day mr-2"></i>
+                                            Mon Emploi du Temps
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Jour</th>
+                                                        <th>Matière</th>
+                                                        <th>Heure de début</th>
+                                                        <th>Heure de fin</th>
+                                                        <th>Statut</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for emploi in emploi_du_temps %}
+                                                    <tr>
+                                                        <td>{{ emploi.jour_semaine|title }}</td>
+                                                        <td>{{ emploi.matiere }}</td>
+                                                        <td>{{ emploi.heure_debut }}</td>
+                                                        <td>{{ emploi.heure_fin }}</td>
+                                                        <td>
+                                                            <span class="badge badge-{% if emploi.actif %}mrkarfour{% else %}secondary{% endif %}">
+                                                                {{ emploi.actif|yesno:"Actif,Inactif" }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; MyKarfour {% now "Y" %}</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+                <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Prêt à partir ?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Sélectionnez "Déconnexion" ci-dessous si vous êtes prêt à mettre fin à votre session.</div>
+                <div class="modal-footer">
+                    <form method="post" action="{% url 'deconnexion' %}" class="block">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-mrkarfour">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                    </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <script>
+        // Fonction pour afficher une section
+        function showSection(sectionName) {
+            // Masquer toutes les sections
+            document.querySelectorAll('.dynamic-content').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Afficher la section demandée
+            document.getElementById(sectionName + '-section').classList.add('active');
+
+            // Mettre à jour le breadcrumb
+            updateBreadcrumb(sectionName);
+
+            // Mettre à jour la navigation active
+            updateActiveNav(sectionName);
+        }
+
+        // Mettre à jour le breadcrumb
+        function updateBreadcrumb(section) {
+            const sectionNames = {
+                'dashboard': 'Accueil',
+                'emploi-du-temps': 'Emploi du Temps',
+                'cours': 'Mes Cours',
+                'quiz': 'Quiz',
+                'mes-evaluations': 'Mes Évaluations',
+                'sessions-revision': 'Mes Révisions',
+                'abonnement': 'Abonnement',
+                'notifications': 'Notifications',
+                'profil': 'Mon Profil'
+            };
+
+            document.getElementById('current-section').textContent = sectionNames[section] || 'Section';
+        }
+
+        // Mettre à jour la navigation active
+        function updateActiveNav(section) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+        }
+
+        // Programmer de nouvelles sessions
+        function programmerNouvellesSessions() {
+            if (confirm('Voulez-vous programmer de nouvelles sessions de révision basées sur votre emploi du temps ?')) {
+                fetch('{% url "programmer_sessions" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('✅ ' + data.message);
+                        location.reload();
+                    } else {
+                        alert('❌ Erreur: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur de connexion');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

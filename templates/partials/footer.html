@@ -1,0 +1,39 @@
+<footer class="mt-20">
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <!-- Partie turquoise -->
+    <div class="bg-primary text-white px-6 py-10">
+      <div class="max-w-md mx-auto">
+        <h2 class="text-xl font-bold mb-4">MyKarfour</h2>
+        <p class="text-sm mb-6">
+          Votre répétiteur MyKarfour, disponible à tout moment pour accompagner les élèves dans leurs révisions.
+        </p>
+
+        <h3 class="text-lg font-semibold mb-2">Contact</h3>
+        <ul class="text-sm space-y-1">
+          <li>Email : <a href="mailto:contact@mykarfour.com" class="underline hover:text-yellow-300">mykarfour@gmail.com</a></li>
+          <li>Téléphone : +241  066 82 21 48</li>
+          <li>Adresse : Gabon, Libreville</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Partie jaune -->
+    <div class="bg-secondary text-primary px-6 py-10">
+      <div class="max-w-md mx-auto">
+        <h3 class="text-lg font-semibold mb-4">Liens rapides</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="{% url 'accueil' %}" class="hover:underline hover:text-primaryDark">Accueil</a></li>
+          <li><a href="{% url 'pricing' %}" class="hover:underline hover:text-primaryDark">Tarifs</a></li>
+          <li><a href="{% url 'features' %}" class="hover:underline hover:text-primaryDark">Fonctionnalités</a></li>
+          <li><a href="#" class="hover:underline hover:text-primaryDark">Comment ça marche</a></li>
+          <li><a href="{% url 'contact' %}" class="hover:underline hover:text-primaryDark">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="bg-primaryDark text-white text-center text-sm py-4">
+    &copy; 2026 MyKarfour — Tous droits réservés.
+  </div>
+</footer>

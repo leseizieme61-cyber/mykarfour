@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Comment ça marche - MyKarfour{% endblock %}
+
+{% block content %}
+<section class="py-6 px-6 max-w-5xl mx-auto">
+  <div class="relative rounded-lg overflow-hidden">
+    <!-- Dégradé 50% jaune / 50% turquoise foncé -->
+    <div class="absolute inset-0 bg-gradient-to-r from-yellow-400 to-[#0EA7A7]"></div>
+    <!-- Overlay semi-transparent noir pour lisibilité -->
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+
+    <!-- Contenu texte -->
+    <div class="relative p-8 text-white">
+      <h1 class="text-4xl font-bold text-center mb-10" style="color:#0EA7A7;">
+        Comment fonctionne MyKarfour ?
+      </h1>
+
+      <div class="space-y-8 text-lg leading-relaxed">
+        <p>
+          MyKarfour est conçu pour accompagner les élèves dans leur apprentissage quotidien, en s’adaptant automatiquement à leur emploi du temps et à leurs besoins spécifiques.
+        </p>
+
+        <h2 class="text-2xl font-semibold" style="color:#0EA7A7;">1. Inscription & Création de profil</h2>
+        <p>
+          L’élève crée un compte et renseigne ses informations personnelles ainsi que son niveau scolaire. Il choisit ensuite une formule d’abonnement adaptée à ses besoins.
+        </p>
+
+        <h2 class="text-2xl font-semibold" style="color:#0EA7A7;">2. Soumission de l’emploi du temps et des cours</h2>
+        <p>
+          L’élève saisit manuellement ou importe son emploi du temps scolaire et ajoute les thématiques ou matières étudiées en classe.
+        </p>
+
+        <h2 class="text-2xl font-semibold" style="color:#0EA7A7;">3. Planification intelligente par l’IA</h2>
+        <p>
+          L’intelligence artificielle analyse l’emploi du temps et crée automatiquement un planning de révision personnalisé avec des rappels adaptés aux heures disponibles.
+        </p>
+
+        <h2 class="text-2xl font-semibold" style="color:#0EA7A7;">4. Révisions guidées et quiz personnalisés</h2>
+        <p>
+          Chaque jour, l’élève reçoit des exercices, quiz et supports pédagogiques adaptés à ses cours, avec un suivi progressif et un système de feedback encourageant.
+        </p>
+
+        <h2 class="text-2xl font-semibold" style="color:#0EA7A7;">5. Suivi de progression et motivation</h2>
+        <p>
+          MyKarfour suit les progrès de l’élève, propose des conseils personnalisés, et motive grâce à des défis, badges et classements.
+        </p>
+
+        <h2 class="text-2xl font-semibold" style="color:#0EA7A7;">6. Implication des parents</h2>
+        <p>
+          Les parents peuvent suivre la progression de leurs enfants via un espace dédié et recevoir des rapports réguliers par email ou SMS.
+        </p>
+
+        <h2 class="text-2xl font-semibold" style="color:#0EA7A7;">7. Modes d’apprentissage variés</h2>
+        <p>
+          L’élève peut réviser en mode hors ligne, utiliser la reconnaissance vocale pour interagir avec l’IA, et accéder à des ressources complémentaires (vidéos, fiches, PDF).
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

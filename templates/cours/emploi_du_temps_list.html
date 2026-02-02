@@ -1,0 +1,498 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emploi du Temps - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- En-tête -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">📅 Emploi du Temps</h1>
+                    <p class="mt-2 text-lg text-gray-600">
+                        Consultez votre planning de cours et sessions de révision
+                    </p>
+                </div>
+                <div class="mt-4 md:mt-0 flex space-x-3">
+                    {% if request.user.type_utilisateur == 'élève' or request.user.type_utilisateur == 'parent' %}
+                    <a href="{% url 'repetiteur_ia:ajouter_emploi_du_temps' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#0EA7A7] hover:bg-teal-600 transition duration-150">
+                        <i class="fas fa-plus mr-2"></i>
+                        Ajouter un créneau
+                    </a>
+                    {% endif %}
+                    <button onclick="window.print()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150">
+                        <i class="fas fa-print mr-2"></i>
+                        Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#0EA7A7]">
+                <div class="flex items-center">
+                    <div class="p-3 bg-[#0EA7A7] bg-opacity-10 rounded-lg">
+                        <i class="fas fa-calendar-day text-[#0EA7A7] text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Cours cette semaine</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ cours_semaine_count }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="fas fa-clock text-green-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Heures/semaine</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ heures_semaine }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="fas fa-book text-blue-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Matières différentes</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ matieres_count }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                <div class="flex items-center">
+                    <div class="p-3 bg-purple-100 rounded-lg">
+                        <i class="fas fa-user-check text-purple-500 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Prochain cours</p>
+                        <p class="text-lg font-bold text-gray-900">{{ prochain_cours.matiere|default:"Aucun" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" 
+                               placeholder="Rechercher une matière..." 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA7A7] focus:border-transparent"
+                               id="searchInput">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <select class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#0EA7A7] focus:border-transparent" id="jourFilter">
+                        <option value="">Tous les jours</option>
+                        <option value="lundi">Lundi</option>
+                        <option value="mardi">Mardi</option>
+                        <option value="mercredi">Mercredi</option>
+                        <option value="jeudi">Jeudi</option>
+                        <option value="vendredi">Vendredi</option>
+                        <option value="samedi">Samedi</option>
+                        <option value="dimanche">Dimanche</option>
+                    </select>
+                    <select class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#0EA7A7] focus:border-transparent" id="matiereFilter">
+                        <option value="">Toutes les matières</option>
+                        {% for matiere in matieres_uniques %}
+                        <option value="{{ matiere }}">{{ matiere }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emploi du temps - Vue hebdomadaire -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">📋 Vue Hebdomadaire</h2>
+                <p class="text-gray-600 text-sm mt-1">Semaine du {{ semaine_debut|date:"d/m/Y" }} au {{ semaine_fin|date:"d/m/Y" }}</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                                Heure
+                            </th>
+                            {% for jour in jours_semaine %}
+                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex flex-col items-center">
+                                    <span class="font-semibold">{{ jour.nom }}</span>
+                                    <span class="text-xs text-gray-400 mt-1">{{ jour.date|date:"d/m" }}</span>
+                                </div>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for heure in heures_journee %}
+                        <tr class="hover:bg-gray-50 transition duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
+                                {{ heure }}
+                            </td>
+                            {% for jour in jours_semaine %}
+                            <td class="px-2 py-2 align-top border-r border-gray-200 last:border-r-0">
+                                {% for emploi in emplois_par_jour_heure %}
+                                    {% if emploi.jour_semaine == jour.valeur and emploi.heure_debut <= heure and emploi.heure_fin > heure %}
+                                    <div class="bg-[#0EA7A7] bg-opacity-10 border-l-4 border-[#0EA7A7] rounded-r-lg p-3 mb-2 shadow-sm hover:shadow-md transition duration-150 cursor-pointer"
+                                         onclick="showEmploiDetails({{ emploi.id }})">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex-1">
+                                                <h4 class="font-semibold text-gray-900 text-sm">{{ emploi.matiere }}</h4>
+                                                <p class="text-xs text-gray-600 mt-1">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    {{ emploi.heure_debut|time:"H:i" }} - {{ emploi.heure_fin|time:"H:i" }}
+                                                </p>
+                                                {% if emploi.salle %}
+                                                <p class="text-xs text-gray-500 mt-1">
+                                                    <i class="fas fa-door-open mr-1"></i>
+                                                    {{ emploi.salle }}
+                                                </p>
+                                                {% endif %}
+                                                {% if emploi.eleve and request.user.type_utilisateur == 'professeur' %}
+                                                <p class="text-xs text-[#0EA7A7] font-medium mt-1">
+                                                    <i class="fas fa-user-graduate mr-1"></i>
+                                                    {{ emploi.eleve.user.get_full_name|default:emploi.eleve.user.username }}
+                                                </p>
+                                                {% endif %}
+                                            </div>
+                                            {% if emploi.actif %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Actif
+                                            </span>
+                                            {% else %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                Inactif
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Liste détaillée -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">📝 Liste Détailée des Cours</h2>
+            </div>
+
+            {% if emplois_du_temps %}
+                <div class="divide-y divide-gray-200">
+                    {% for emploi in emplois_du_temps %}
+                    <div class="p-6 hover:bg-gray-50 transition duration-150">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                            <div class="flex-1 mb-4 lg:mb-0">
+                                <div class="flex items-start space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="p-3 bg-[#0EA7A7] bg-opacity-10 rounded-lg">
+                                            <i class="fas fa-book text-[#0EA7A7] text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <h3 class="text-lg font-semibold text-gray-900">{{ emploi.matiere }}</h3>
+                                            {% if emploi.actif %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Actif
+                                            </span>
+                                            {% else %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                Inactif
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-calendar-day mr-2 text-[#0EA7A7]"></i>
+                                                <span class="capitalize">{{ emploi.jour_semaine }}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-clock mr-2 text-[#0EA7A7]"></i>
+                                                <span>{{ emploi.heure_debut|time:"H:i" }} - {{ emploi.heure_fin|time:"H:i" }}</span>
+                                            </div>
+                                            {% if emploi.salle %}
+                                            <div class="flex items-center">
+                                                <i class="fas fa-door-open mr-2 text-[#0EA7A7]"></i>
+                                                <span>Salle {{ emploi.salle }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        {% if emploi.eleve and request.user.type_utilisateur == 'professeur' %}
+                                        <div class="mt-3 flex items-center text-sm text-[#0EA7A7]">
+                                            <i class="fas fa-user-graduate mr-2"></i>
+                                            <span class="font-medium">Élève :</span>
+                                            <span class="ml-1">{{ emploi.eleve.user.get_full_name|default:emploi.eleve.user.username }}</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if emploi.cours %}
+                                        <div class="mt-2">
+                                            <a href="{% url 'cours:detail' emploi.cours.pk %}" 
+                                               class="inline-flex items-center text-sm text-[#0EA7A7] hover:text-teal-600">
+                                                <i class="fas fa-external-link-alt mr-1"></i>
+                                                Voir le cours associé
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-2">
+                                {% if request.user.type_utilisateur == 'élève' or request.user.type_utilisateur == 'parent' %}
+                                <a href="{% url 'repetiteur_ia:modifier_emploi_du_temps' emploi.pk %}" 
+                                   class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150">
+                                    <i class="fas fa-edit mr-2"></i>
+                                    Modifier
+                                </a>
+                                <a href="{% url 'repetiteur_ia:supprimer_emploi_du_temps' emploi.pk %}" 
+                                   class="inline-flex items-center px-3 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 transition duration-150">
+                                    <i class="fas fa-trash mr-2"></i>
+                                    Supprimer
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- État vide -->
+                <div class="text-center py-12">
+                    <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-calendar-times text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun cours programmé</h3>
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        {% if request.user.type_utilisateur == 'élève' %}
+                        Vous n'avez pas encore d'emploi du temps. Ajoutez vos premiers cours pour commencer à organiser votre semaine.
+                        {% elif request.user.type_utilisateur == 'professeur' %}
+                        Aucun cours n'est programmé pour le moment.
+                        {% else %}
+                        Aucun emploi du temps disponible.
+                        {% endif %}
+                    </p>
+                    {% if request.user.type_utilisateur == 'élève' or request.user.type_utilisateur == 'parent' %}
+                    <a href="{% url 'repetiteur_ia:ajouter_emploi_du_temps' %}" 
+                       class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#0EA7A7] hover:bg-teal-600 transition duration-150">
+                        <i class="fas fa-plus mr-2"></i>
+                        Ajouter votre premier cours
+                    </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Section des sessions de révision programmées -->
+        {% if sessions_revision %}
+        <div class="mt-8 bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">🎯 Sessions de Révision Programmées</h2>
+                <p class="text-gray-600 text-sm mt-1">Sessions automatiques basées sur votre emploi du temps</p>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for session in sessions_revision %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-150">
+                        <div class="flex items-start justify-between mb-3">
+                            <h4 class="font-semibold text-gray-900">{{ session.matiere }}</h4>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                {% if session.statut == 'planifie' %}bg-blue-100 text-blue-800
+                                {% elif session.statut == 'en_cours' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ session.get_statut_display }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">
+                            <i class="fas fa-calendar mr-1"></i>
+                            {{ session.date_programmation|date:"d/m/Y à H:i" }}
+                        </p>
+                        <p class="text-sm text-gray-500 line-clamp-2">{{ session.objectifs|truncatewords:10 }}</p>
+                        <div class="mt-3 flex space-x-2">
+                            <a href="{% url 'repetiteur_chat' %}?session={{ session.id }}" 
+                               class="flex-1 text-center px-3 py-2 bg-[#0EA7A7] text-white text-sm rounded-md hover:bg-teal-600 transition duration-150">
+                                Commencer
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal pour les détails -->
+<div id="emploiModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#0EA7A7] bg-opacity-10">
+                <i class="fas fa-info-circle text-[#0EA7A7] text-xl"></i>
+            </div>
+            <div class="mt-2 text-center">
+                <h3 id="modalTitle" class="text-lg font-medium text-gray-900"></h3>
+                <div id="modalContent" class="mt-2 px-7 py-3 text-sm text-gray-500">
+                </div>
+            </div>
+            <div class="items-center px-4 py-3">
+                <button id="closeModal" class="px-4 py-2 bg-[#0EA7A7] text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filtrage en temps réel
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const jourFilter = document.getElementById('jourFilter');
+    const matiereFilter = document.getElementById('matiereFilter');
+    const emploiItems = document.querySelectorAll('.divide-y > div');
+
+    function filterEmplois() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedJour = jourFilter.value;
+        const selectedMatiere = matiereFilter.value;
+
+        emploiItems.forEach(item => {
+            const matiere = item.querySelector('h3').textContent.toLowerCase();
+            const jourElement = item.querySelector('.fa-calendar-day').parentElement;
+            const jour = jourElement.textContent.trim().toLowerCase();
+            
+            const matchesSearch = matiere.includes(searchTerm);
+            const matchesJour = !selectedJour || jour.includes(selectedJour);
+            const matchesMatiere = !selectedMatiere || matiere.includes(selectedMatiere.toLowerCase());
+
+            if (matchesSearch && matchesJour && matchesMatiere) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    if (searchInput) searchInput.addEventListener('input', filterEmplois);
+    if (jourFilter) jourFilter.addEventListener('change', filterEmplois);
+    if (matiereFilter) matiereFilter.addEventListener('change', filterEmplois);
+
+    // Gestion du modal
+    const modal = document.getElementById('emploiModal');
+    const closeModal = document.getElementById('closeModal');
+
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+    }
+
+    // Fermer le modal en cliquant à l'extérieur
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+});
+
+// Fonction pour afficher les détails d'un emploi du temps
+function showEmploiDetails(emploiId) {
+    // Ici vous pourriez faire un appel AJAX pour récupérer les détails
+    // Pour l'instant, on affiche un message simple
+    const modal = document.getElementById('emploiModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+
+    modalTitle.textContent = 'Détails du cours';
+    modalContent.innerHTML = `
+        <p>Fonctionnalité de détail à implémenter.</p>
+        <p class="mt-2">ID du cours: ${emploiId}</p>
+    `;
+
+    modal.classList.remove('hidden');
+}
+
+// Mettre en évidence le jour actuel
+document.addEventListener('DOMContentLoaded', function() {
+    const jours = {
+        'lundi': 0, 'mardi': 1, 'mercredi': 2, 
+        'jeudi': 3, 'vendredi': 4, 'samedi': 5, 'dimanche': 6
+    };
+    
+    const aujourdhui = new Date().toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
+    const jourIndex = jours[aujourdhui];
+    
+    if (jourIndex !== undefined) {
+        const headers = document.querySelectorAll('thead th');
+        if (headers[jourIndex + 1]) { // +1 car la première colonne est les heures
+            headers[jourIndex + 1].classList.add('bg-[#0EA7A7]', 'bg-opacity-10');
+        }
+    }
+});
+</script>
+
+<style>
+/* Styles pour l'impression */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .bg-gray-50 {
+        background-color: white !important;
+    }
+    
+    .shadow-md {
+        box-shadow: none !important;
+    }
+    
+    .border {
+        border: 1px solid #e5e7eb !important;
+    }
+}
+
+/* Animation pour les créneaux */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.bg-\\[\\#0EA7A7\\] {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Limiter le texte à 2 lignes */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

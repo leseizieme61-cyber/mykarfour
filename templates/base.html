@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}MyKarfour{% endblock %}</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Personnalisation Tailwind avec tes couleurs -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0EA7A7',
+            primaryDark: '#0c8c8c',
+            secondary: '#FACC15',
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Font (Inter) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Feuille de style personnalisée -->
+  <link rel="stylesheet" href="{% static '/css/index.css' %}">
+
+  <style>
+    body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 2s infinite;
+  }
+
+  /* Nouveau style pour l'image flottante */
+  .mascotte-flottante {
+    position: fixed;
+    top: 40%;           /* centre verticalement */
+    left: 0;           /* collé à droite */
+    transform: translateY(-50%); /* ajuste pour que le centre soit vraiment centré */
+    width: 100px;       /* agrandir l'image, tu peux ajuster */
+    height: auto;       /* garde les proportions */
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  /* Cacher la mascotte sur mobile */
+  @media (max-width: 768px) {
+    .mascotte-flottante {
+      display: none;
+    }
+  }
+  </style>
+</head>
+<div class="mascotte-flottante animate-bounce-slow">
+  <img src="{% static 'img/mrk.png' %}" alt="Mascotte MrKarfour" class="w-full h-full object-contain">
+</div>
+<body class="bg-white text-gray-800">
+
+  <!-- Bande supérieure turquoise + bande inférieure jaune pour l'équilibre visuel -->
+  <div class="w-full h-2 bg-primary"></div>
+  <div class="w-full h-1 bg-secondary"></div>
+
+  <!-- HEADER -->
+  {% include 'partials/header.html' %}
+
+  <!-- MAIN CONTENT -->
+  <main class="px-4 max-w-7xl mx-auto">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  {% include 'partials/footer.html' %}
+
+  <!-- Scroll-to-Top Button -->
+  <button id="scrollTopBtn" 
+    class="hidden fixed bottom-6 right-6 bg-primary hover:bg-primaryDark text-white p-3 rounded-full shadow-lg transition duration-300 z-50"
+    aria-label="Remonter en haut de la page">
+    
+    <!-- Flèche haut jaune -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary" fill="none" 
+         viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <!-- Script Scroll-to-Top -->
+  <script>
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 200) {
+        scrollTopBtn.classList.remove("hidden");
+      } else {
+        scrollTopBtn.classList.add("hidden");
+      }
+    });
+
+    scrollTopBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

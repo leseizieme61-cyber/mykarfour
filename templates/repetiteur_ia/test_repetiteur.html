@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Test Répétiteur IA - MrKarfour{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">🧪 Test du Répétiteur IA</h1>
+        <p class="text-gray-600 mb-4">Cette page permet de tester directement le fonctionnement du répétiteur IA.</p>
+        
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p class="text-yellow-800 text-sm">
+                <strong>Note :</strong> Cette page est temporaire et sera retirée une fois le répétiteur pleinement opérationnel.
+            </p>
+        </div>
+
+        <!-- Formulaire de test -->
+        <form id="testForm" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="question" class="block text-sm font-medium text-gray-700 mb-2">
+                    Question de test
+                </label>
+                <input 
+                    type="text" 
+                    name="question" 
+                    id="question" 
+                    placeholder="Posez votre question ici..."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0EA7A7] focus:border-[#0EA7A7]"
+                    value="Explique-moi les fractions"
+                >
+            </div>
+            
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-[#0EA7A7] to-teal-500 hover:from-teal-600 hover:to-teal-700 text-white py-3 px-6 rounded-lg font-medium transition duration-200"
+            >
+                Tester le répétiteur
+            </button>
+        </form>
+
+        <!-- Résultats du test -->
+        <div id="results" class="mt-8 space-y-4 hidden">
+            <h3 class="text-lg font-semibold text-gray-800">Résultats du test :</h3>
+            
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-2">Question posée :</h4>
+                <p id="questionResult" class="text-gray-600"></p>
+            </div>
+            
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 class="font-medium text-green-700 mb-2">Réponse IA :</h4>
+                <p id="reponseResult" class="text-green-800"></p>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 class="font-medium text-blue-700 mb-2">Statut :</h4>
+                <p id="statusResult" class="text-blue-800"></p>
+            </div>
+        </div>
+
+        <!-- Zone d'erreur -->
+        <div id="error" class="mt-8 bg-red-50 border border-red-200 rounded-lg p-4 hidden">
+            <h4 class="font-medium text-red-700 mb-2">Erreur :</h4>
+            <p id="errorMessage" class="text-red-800"></p>
+        </div>
+    </div>
+
+    <!-- Instructions de test -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Questions de test recommandées :</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-blue-800 mb-2">Mathématiques</h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Explique-moi les fractions</li>
+                    <li>• Comment résoudre une équation du premier degré ?</li>
+                    <li>• Qu'est-ce que le théorème de Pythagore ?</li>
+                </ul>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-green-800 mb-2">Français</h3>
+                <ul class="text-sm text-green-700 space-y-1">
+                    <li>• Quelle est la différence entre un COD et un COI ?</li>
+                    <li>• Explique-moi les temps du passé</li>
+                    <li>• Comment accorder les participes passés ?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('testForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const resultsDiv = document.getElementById('results');
+    const errorDiv = document.getElementById('error');
+    
+    // Masquer les résultats précédents
+    resultsDiv.classList.add('hidden');
+    errorDiv.classList.add('hidden');
+    
+    try {
+        const response = await fetch('', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Erreur inconnue');
+        }
+
+        // Afficher les résultats
+        document.getElementById('questionResult').textContent = data.question;
+        document.getElementById('reponseResult').textContent = data.reponse;
+        document.getElementById('statusResult').textContent = data.status;
+        
+        resultsDiv.classList.remove('hidden');
+        
+    } catch (error) {
+        // Afficher l'erreur
+        document.getElementById('errorMessage').textContent = error.message;
+        errorDiv.classList.remove('hidden');
+        console.error('Erreur test:', error);
+    }
+});
+
+// Focus sur le champ de question
+document.getElementById('question')?.focus();
+</script>
+{% endblock %}

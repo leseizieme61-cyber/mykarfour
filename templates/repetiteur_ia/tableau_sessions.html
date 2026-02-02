@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Mes Sessions de Révision{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- En-tête -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-teal-800 mb-2">Mes Sessions de Révision</h1>
+        <p class="text-lg text-gray-600">Gérez et suivez vos sessions de révision programmées</p>
+        
+        <div class="mt-4">
+            <a href="{% url 'soumettre_cours' %}" 
+               class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Programmer une session
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-teal-700">{{ sessions.count }}</div>
+            <div class="text-sm text-teal-600">Total sessions</div>
+        </div>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-blue-700">{{ sessions_planifiees.count|default:0 }}</div>
+            <div class="text-sm text-blue-600">Planifiées</div>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-700">{{ sessions_terminees.count|default:0 }}</div>
+            <div class="text-sm text-green-600">Terminées</div>
+        </div>
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-orange-700">{{ sessions_annulees.count|default:0 }}</div>
+            <div class="text-sm text-orange-600">Annulées</div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="mb-6 flex flex-wrap gap-2">
+        <button class="px-3 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium">Toutes</button>
+        <button class="px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">Planifiées</button>
+        <button class="px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">Terminées</button>
+        <button class="px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">Annulées</button>
+    </div>
+
+    <!-- Liste des sessions -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        {% for session in sessions %}
+        <div class="border-b border-gray-100 last:border-b-0 hover:bg-teal-50 transition-colors duration-200">
+            <div class="p-6">
+                <!-- En-tête de la session -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold text-teal-800 mb-1">
+                            {{ session.titre|default:"Session de révision" }}
+                        </h3>
+                        <p class="text-gray-600 text-sm">
+                            Programmée le {{ session.date_programmation|date:"d/m/Y" }}
+                            à {{ session.date_programmation|date:"H:i" }}
+                        </p>
+                    </div>
+                    
+                    <!-- Statut -->
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                            {% if session.statut == 'termine' %}bg-green-100 text-green-800
+                            {% elif session.statut == 'annule' %}bg-red-100 text-red-800
+                            {% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {% if session.statut == 'termine' %}Terminée
+                            {% elif session.statut == 'annule' %}Annulée
+                            {% else %}Planifiée{% endif %}
+                        </span>
+                        
+                        <!-- Actions rapides -->
+                        <div class="flex gap-2">
+                            {% if session.statut == 'planifie' %}
+                            <a href="{% url 'repetiteur_ia:demarrer_session' session.pk %}" 
+                               class="inline-flex items-center px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                Démarrer
+                            </a>
+                            {% endif %}
+                            
+                            <button class="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détails de la session -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                    <!-- Durée -->
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span><strong>Durée:</strong> {{ session.duree_prevue|default:"Non définie" }}</span>
+                    </div>
+
+                    <!-- Statut détaillé -->
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span><strong>Statut:</strong> {{ session.statut|title }}</span>
+                    </div>
+
+                    <!-- Date de création -->
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span><strong>Créée le:</strong> {{ session.date_creation|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+
+                <!-- Objectifs -->
+                {% if session.objectifs %}
+                <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Objectifs:</h4>
+                    <p class="text-gray-600 text-sm">{{ session.objectifs }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Notes de préparation -->
+                {% if session.notes_preparation %}
+                <div class="mt-3">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Notes:</h4>
+                    <p class="text-gray-600 text-sm">{{ session.notes_preparation }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Historique des modifications -->
+                <div class="mt-4 text-xs text-gray-500">
+                    Dernière modification: {{ session.date_modification|date:"d/m/Y à H:i" }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- État vide -->
+        <div class="text-center py-12">
+            <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune session programmée</h3>
+            <p class="text-gray-500 max-w-md mx-auto mb-4">
+                Vous n'avez pas encore programmé de session de révision. 
+                Créez votre première session pour organiser votre apprentissage.
+            </p>
+            <a href="{% url 'soumettre_cours' %}" 
+               class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Programmer ma première session
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination (si nécessaire) -->
+    {% if is_paginated %}
+    <div class="mt-8 flex justify-center items-center space-x-4">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-teal-50 hover:border-teal-300 transition-colors duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Précédent
+        </a>
+        {% endif %}
+
+        <span class="text-sm text-gray-700">
+            Page <span class="font-semibold text-teal-600">{{ page_obj.number }}</span> 
+            sur <span class="font-semibold text-teal-600">{{ page_obj.paginator.num_pages }}</span>
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-teal-50 hover:border-teal-300 transition-colors duration-200">
+            Suivant
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

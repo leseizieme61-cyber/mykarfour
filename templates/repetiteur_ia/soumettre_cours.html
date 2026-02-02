@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}Soumettre un Cours{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- En-tête -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-teal-800 mb-2">Soumettre un Cours</h1>
+        <p class="text-lg text-gray-600">Partagez votre contenu pédagogique avec MrKarfour pour une révision personnalisée</p>
+    </div>
+
+    <!-- Formulaire de soumission -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <form id="soumission-form" method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Sélection de la session -->
+            <div>
+                <label for="session_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    Session associée (optionnel)
+                </label>
+                <select name="session_id" id="session_id" 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500">
+                    <option value="">-- Créer une nouvelle session --</option>
+                    {% for session in sessions %}
+                    <option value="{{ session.id }}">
+                        {{ session.titre }} - {{ session.date_programmation|date:"d/m/Y H:i" }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Type de soumission -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Type de contenu
+                </label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="type_soumission" value="texte" checked 
+                               class="text-teal-600 focus:ring-teal-500">
+                        <span class="ml-2">Texte</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="type_soumission" value="fichier"
+                               class="text-teal-600 focus:ring-teal-500">
+                        <span class="ml-2">Fichier</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Matière -->
+            <div>
+                <label for="matiere" class="block text-sm font-medium text-gray-700 mb-2">
+                    Matière *
+                </label>
+                <select name="matiere" id="matiere" required
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500">
+                    <option value="">Sélectionnez une matière</option>
+                    {% for matiere in matieres %}
+                    <option value="{{ matiere }}">{{ matiere }}</option>
+                    {% endfor %}
+                    <option value="autre">Autre matière</option>
+                </select>
+                <div id="matiere-autre-container" class="mt-2 hidden">
+                    <label for="matiere_autre" class="block text-sm font-medium text-gray-700 mb-1">
+                        Précisez la matière *
+                    </label>
+                    <input type="text" name="matiere_autre" id="matiere_autre" 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" 
+                        placeholder="Ex: Programmation, Philosophie, etc.">
+                </div>
+            </div>
+
+            <!-- Zone de texte -->
+            <div id="zone-texte">
+                <label for="contenu_texte" class="block text-sm font-medium text-gray-700 mb-2">
+                    Contenu du cours *
+                </label>
+                <textarea name="contenu_texte" id="contenu_texte" rows="12" 
+                          class="w-full border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                          placeholder="Collez ou tapez votre contenu pédagogique ici..."></textarea>
+                <p class="mt-1 text-sm text-gray-500">
+                    Vous pouvez coller du texte, des notes de cours, des exercices, etc.
+                </p>
+            </div>
+
+            <!-- Zone fichier (cachée par défaut) -->
+            <div id="zone-fichier" class="hidden">
+                <label for="fichier" class="block text-sm font-medium text-gray-700 mb-2">
+                    Fichier *
+                </label>
+                <input type="file" name="fichier" id="fichier" 
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                       accept=".pdf,.doc,.docx,.txt,.ppt,.pptx">
+                <p class="mt-1 text-sm text-gray-500">
+                    Formats acceptés : PDF, Word, PowerPoint, Texte
+                </p>
+            </div>
+
+            <!-- Option génération automatique de quiz -->
+            <div class="flex items-center">
+                <input type="checkbox" name="generer_quiz_auto" id="generer_quiz_auto" value="true" checked
+                       class="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded">
+                <label for="generer_quiz_auto" class="ml-2 block text-sm text-gray-700">
+                    Générer automatiquement un quiz à partir de ce contenu
+                </label>
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex justify-end space-x-4 pt-6">
+                <a href="{% url 'tableau_sessions' %}" 
+                   class="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                    Annuler
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Soumettre le cours
+                </button>
+            </div>
+        </form>
+    </div>
+    <!-- Après le formulaire, ajoutez cette section pour afficher la réponse -->
+<div id="reponse-mrkarfour" class="hidden mt-8">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <h3 class="text-xl font-bold text-teal-800 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+            Réponse de MrKarfour
+        </h3>
+        
+        <div class="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
+            <div id="reponse-content" class="text-gray-700 whitespace-pre-wrap"></div>
+        </div>
+        
+        <div id="resume-section" class="hidden mb-4">
+            <h4 class="font-semibold text-gray-800 mb-2">📝 Analyse du contenu :</h4>
+            <div id="resume-content" class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-gray-600 whitespace-pre-wrap"></div>
+        </div>
+        
+        <div class="flex justify-end space-x-4">
+            <button onclick="fermerReponse()" 
+                    class="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                Fermer
+            </button>
+            <a id="lien-chat" href="#" 
+               class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200">
+                Continuer vers le chat
+            </a>
+        </div>
+    </div>
+</div>
+
+    <!-- Informations -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-blue-900 mb-2">Comment ça marche ?</h3>
+        <ul class="text-sm text-blue-800 space-y-2">
+            <li class="flex items-start">
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Soumettez votre contenu de cours (texte ou fichier)
+            </li>
+            <li class="flex items-start">
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                MrKarfour analysera automatiquement votre contenu
+            </li>
+            <li class="flex items-start">
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Un résumé pédagogique sera généré
+            </li>
+            <li class="flex items-start">
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Optionnellement, un quiz personnalisé sera créé pour tester vos connaissances
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- JavaScript pour gérer l'interface -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeTexte = document.querySelector('input[value="texte"]');
+    const typeFichier = document.querySelector('input[value="fichier"]');
+    const zoneTexte = document.getElementById('zone-texte');
+    const zoneFichier = document.getElementById('zone-fichier');
+    const matiereSelect = document.getElementById('matiere');
+    const matiereAutre = document.getElementById('matiere_autre');
+
+    // Gestion du type de contenu
+    function toggleZones() {
+        if (typeTexte.checked) {
+            zoneTexte.classList.remove('hidden');
+            zoneFichier.classList.add('hidden');
+            document.getElementById('contenu_texte').required = true;
+            document.getElementById('fichier').required = false;
+        } else {
+            zoneTexte.classList.add('hidden');
+            zoneFichier.classList.remove('hidden');
+            document.getElementById('contenu_texte').required = false;
+            document.getElementById('fichier').required = true;
+        }
+    }
+
+    typeTexte.addEventListener('change', toggleZones);
+    typeFichier.addEventListener('change', toggleZones);
+
+    // Gestion de la matière "autre"
+    matiereSelect.addEventListener('change', function() {
+        const matiereAutreContainer = document.getElementById('matiere-autre-container');
+        const matiereAutreInput = document.getElementById('matiere_autre');
+        
+        if (this.value === 'autre') {
+            matiereAutreContainer.classList.remove('hidden');
+            matiereAutreInput.required = true;
+        } else {
+            matiereAutreContainer.classList.add('hidden');
+            matiereAutreInput.required = false;
+        }
+    });
+    // Validation du formulaire
+   document.getElementById('soumission-form').addEventListener('submit', function(e) {
+    const matiereValue = matiereSelect.value;
+    const matiereAutreValue = document.getElementById('matiere_autre').value.trim();
+    
+    if (matiereValue === 'autre' && !matiereAutreValue) {
+        e.preventDefault();
+        alert('Veuillez spécifier la matière');
+        document.getElementById('matiere_autre').focus();
+        return;
+    }
+    
+    if (!matiereValue) {
+        e.preventDefault();
+        alert('Veuillez sélectionner une matière');
+        matiereSelect.focus();
+        return;
+    }
+    });
+});
+
+// Gestion de la soumission AJAX avec affichage de la réponse
+document.getElementById('soumission-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Afficher le chargement
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Analyse en cours...
+    `;
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Afficher la réponse de MrKarfour
+            afficherReponseMrKarfour(data);
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la soumission');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+function afficherReponseMrKarfour(data) {
+    const reponseSection = document.getElementById('reponse-mrkarfour');
+    const reponseContent = document.getElementById('reponse-content');
+    const resumeSection = document.getElementById('resume-section');
+    const resumeContent = document.getElementById('resume-content');
+    const lienChat = document.getElementById('lien-chat');
+    
+    // Afficher la réponse principale
+    reponseContent.textContent = data.reponse_mrkarfour;
+    
+    // Afficher le résumé si disponible
+    if (data.resume_automatique && data.resume_automatique.length > 50) {
+        resumeContent.textContent = data.resume_automatique;
+        resumeSection.classList.remove('hidden');
+    } else {
+        resumeSection.classList.add('hidden');
+    }
+    
+    // Configurer le lien vers le chat
+    if (data.session_id) {
+        lienChat.href = `{% url 'repetiteur_ia' %}?session=${data.session_id}`;
+    } else {
+        lienChat.href = '{% url "repetiteur_ia" %}';
+    }
+    
+    // Afficher la section
+    reponseSection.classList.remove('hidden');
+    
+    // Scroll vers la réponse
+    reponseSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function fermerReponse() {
+    document.getElementById('reponse-mrkarfour').classList.add('hidden');
+}
+</script>
+{% endblock %}

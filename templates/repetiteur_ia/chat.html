@@ -1,0 +1,631 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Assistant- MrKarfour{% endblock %}
+
+{% block content %}
+
+<body class="bg-gradient-to-br from-cyan-50 to-white min-h-screen">
+  <div class="container mx-auto px-4 py-6 max-w-6xl">
+    
+    <!-- En-tête PERSONNALISÉ avec sessions programmées -->
+    <div class="text-center mb-6">
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 mb-4">
+        <div class="flex items-center justify-center mb-3">
+          <div class="w-16 h-16 bg-gradient-to-r from-[#0EA7A7] to-teal-500 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+          Votre Répétiteur MrKarfour
+          {% if eleve_info %}
+          <span class="text-lg font-normal text-teal-600 block mt-1">
+            {{ eleve_info.nom_complet }} - {{ eleve_info.niveau }} {{ eleve_info.classe }}
+          </span>
+          {% endif %}
+        </h1>
+        <p class="text-gray-600">Assistant pédagogique adapté à votre niveau et emploi du temps</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- Sidebar des sessions programmées -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
+          <h3 class="font-bold text-lg mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-[#0EA7A7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Sessions programmées
+          </h3>
+          
+          {% if sessions_programmees %}
+          <div class="space-y-3">
+            {% for session in sessions_programmees %}
+            <div class="border border-gray-200 rounded-lg p-3 hover:shadow-md transition cursor-pointer 
+                        {% if session.est_en_cours %}bg-green-50 border-green-200{% endif %}"
+                 onclick="chargerSession({{ session.id }})">
+              <div class="flex justify-between items-start mb-2">
+                <h4 class="font-semibold text-sm text-gray-800">{{ session.matiere }}</h4>
+                <span class="text-xs px-2 py-1 rounded-full 
+                  {% if session.est_en_cours %}bg-green-100 text-green-800
+                  {% else %}bg-blue-100 text-blue-800{% endif %}">
+                  {{ session.statut }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-600 mb-1">{{ session.date_programmation|date:"d/m H:i" }}</p>
+              {% if session.objectifs %}
+              <p class="text-xs text-gray-500 truncate">{{ session.objectifs }}</p>
+              {% endif %}
+              <div class="flex justify-between items-center mt-2">
+                <span class="text-xs text-gray-500">{{ session.duree }}min</span>
+                {% if session.soumissions_count > 0 %}
+                <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
+                  📎 {{ session.soumissions_count }}
+                </span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <p class="text-gray-500 text-sm">Aucune session programmée</p>
+            <p class="text-xs text-gray-400 mt-1">Les sessions sont créées automatiquement</p>
+          </div>
+          {% endif %}
+
+          <!-- Bouton pour soumettre un cours hors session -->
+          <button onclick="afficherModalSoumissionGenerale()" 
+                  class="w-full mt-4 bg-amber-500 text-white py-2 px-4 rounded-lg hover:bg-amber-600 transition flex items-center justify-center text-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            </svg>
+            Soumettre un cours
+          </button>
+        </div>
+
+        <!-- Prochain cours aujourd'hui -->
+        {% if prochain_cours %}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 mt-4">
+          <h3 class="font-bold text-lg mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Prochain cours
+          </h3>
+          <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+            <h4 class="font-semibold text-green-800">{{ prochain_cours.matiere }}</h4>
+            <p class="text-sm text-green-600">{{ prochain_cours.heure_debut }} - {{ prochain_cours.heure_fin }}</p>
+            {% if prochain_cours.description %}
+            <p class="text-xs text-green-700 mt-1">{{ prochain_cours.description }}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Container du chat principal -->
+      <div class="lg:col-span-3">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          
+          <!-- En-tête du chat contextuel -->
+          <div class="bg-gradient-to-r from-[#0EA7A7] to-teal-500 px-4 py-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-bold text-white flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                  </svg>
+                  {% if session_active %}
+                  Révision : {{ session_active.matiere }}
+                  {% else %}
+                  Chat pédagogique
+                  {% endif %}
+                </h2>
+                <p class="text-teal-100 text-xs mt-1">
+                  {% if session_active %}
+                  Session programmée - {{ session_active.date_programmation|date:"d/m H:i" }}
+                  {% else %}
+                  Posez votre question ou démarrez une session
+                  {% endif %}
+                </p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span class="text-green-100 text-sm">En Ligne</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zone des messages -->
+          <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="messages">
+            <!-- Message de bienvenue contextuel -->
+            <div class="flex items-start space-x-3 mb-4">
+              <div class="w-6 h-6 bg-gradient-to-r from-[#0EA7A7] to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+              </div>
+              <div class="bg-white rounded-2xl rounded-tl-none px-3 py-2 shadow-sm border border-gray-200 max-w-[85%]">
+                <p class="text-gray-800 text-sm">
+                  {% if session_active %}
+                  👋 Bonjour ! Prêt pour notre session de {{ session_active.matiere }} ? 
+                  {% if session_active.objectifs %}Objectif : {{ session_active.objectifs }}{% endif %}
+                  {% else %}
+                  {{ salutation|default:"👋 Bonjour ! Je suis ton répétiteur. Démarre une session ou pose-moi directement ta question !" }}
+                  {% endif %}
+                </p>
+                <div class="flex items-center mt-2 space-x-2">
+                  <span class="text-xs text-gray-500">Maintenant</span>
+                  {% if eleve_info %}
+                  <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">
+                    {{ eleve_info.niveau }}
+                  </span>
+                  {% endif %}
+                  {% if session_active %}
+                  <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                    Session active
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulaire amélioré avec contexte de session -->
+          <div class="border-t border-gray-200 p-4">
+            <form id="chatForm" method="POST" action="{% url 'repetiteur_chat_send' %}" enctype="multipart/form-data" class="space-y-3">
+              {% csrf_token %}
+              
+              <!-- Champs cachés pour le contexte -->
+              <input type="hidden" name="niveau" value="{{ niveau_eleve|default:'secondaire' }}">
+              <input type="hidden" name="session_id" id="sessionId" value="{{ session_active.id|default:'' }}">
+              {% if eleve_info %}
+              <input type="hidden" name="eleve_id" value="{{ eleve_info.eleve.id }}">
+              {% endif %}
+
+              <!-- MOBILE: Empiler les éléments verticalement -->
+              <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
+                <!-- Champ texte - Prend toute la largeur en mobile -->
+                <div class="flex-1 w-full">
+                  <input 
+                    type="text" 
+                    name="question" 
+                    id="question" 
+                    placeholder="{% if session_active %}Pose ta question sur {{ session_active.matiere }}...{% else %}Pose ta question pédagogique...{% endif %}"
+                    class="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0EA7A7] focus:border-[#0EA7A7] transition duration-200 text-sm"
+                  >
+                </div>
+                
+                <!-- Boutons en ligne sur mobile -->
+                <div class="flex space-x-2 sm:space-x-3">
+                  <!-- Bouton microphone -->
+                  <button 
+                    type="button" 
+                    id="recordBtn"
+                    class="flex-1 sm:flex-none px-4 py-3 sm:py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition duration-200 flex items-center justify-center space-x-2 text-sm min-w-[100px]"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                    </svg>
+                    <span class="hidden sm:inline">Parler</span>
+          
+                  </button>
+
+                  <!-- Bouton soumettre fichier -->
+                  <button 
+                    type="button" 
+                    onclick="afficherModalSoumissionSession()"
+                    class="flex-1 sm:flex-none px-4 py-3 sm:py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition duration-200 flex items-center justify-center space-x-2 text-sm min-w-[100px]"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span class="hidden sm:inline">Fichier</span>
+                   
+                  </button>
+                </div>
+              </div>
+
+              <!-- Input fichier audio caché -->
+              <input type="file" name="audio" id="audioInput" accept="audio/*" class="hidden">
+
+              <!-- Bouton d'envoi contextuel -->
+              <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-[#0EA7A7] to-teal-500 hover:from-teal-600 hover:to-teal-700 text-white py-3 sm:py-2 px-4 rounded-lg font-medium transition duration-200 text-sm flex items-center justify-center"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                {% if session_active %}
+                Envoyer pour {{ session_active.matiere }}
+                {% else %}
+                Envoyer la question
+                {% endif %}
+              </button>
+            </form>
+
+            <!-- Indicateur d'enregistrement -->
+            <div id="recordingIndicator" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div class="flex items-center justify-center space-x-2 text-red-700 text-sm">
+                <div class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                <span class="font-medium">Enregistrement en cours...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructions contextuelles -->
+        <div class="mt-4 text-center">
+          <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 inline-block">
+            <p class="text-amber-800 text-sm font-medium">
+              💡 <strong>Astuce :</strong> 
+              {% if session_active %}
+              Soumets ton cours de {{ session_active.matiere }} pour une révision personnalisée !
+              {% else %}
+              Démarre une session programmée pour une révision structurée
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de soumission -->
+  <div id="modalSoumission" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+      <h3 class="text-lg font-bold mb-4" id="modalTitre">Soumettre mon cours</h3>
+      
+      <form id="formSoumission" onsubmit="soumettreCours(event)">
+        <input type="hidden" id="modalSessionId" name="session_id">
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Matière</label>
+          <select name="matiere" class="w-full border border-gray-300 rounded-lg p-2" required>
+            <option value="">Choisis une matière</option>
+            {% for matiere in matieres_disponibles %}
+            <option value="{{ matiere }}">{{ matiere }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Comment soumettre ?</label>
+          <select name="type_soumission" class="w-full border border-gray-300 rounded-lg p-2" required>
+            <option value="texte">Texte écrit</option>
+            <option value="fichier">Fichier (PDF, Word...)</option>
+          </select>
+        </div>
+        
+        <div id="zoneTexte" class="mb-4">
+          <textarea name="contenu_texte" placeholder="Colle ton cours ici ou décris ce que tu as vu en classe..." 
+                    class="w-full h-32 border border-gray-300 rounded-lg p-2"></textarea>
+        </div>
+        
+        <div id="zoneFichier" class="mb-4 hidden">
+          <input type="file" name="fichier" accept=".pdf,.doc,.docx,.txt,.jpg,.png" 
+                 class="w-full border border-gray-300 rounded-lg p-2">
+        </div>
+        
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="fermerModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+            Annuler
+          </button>
+          <button type="submit" class="bg-[#0EA7A7] text-white px-4 py-2 rounded-lg hover:bg-teal-600">
+            Soumettre
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  // Variables globales
+  const form = document.getElementById("chatForm");
+  const messagesDiv = document.getElementById("messages");
+  const recordBtn = document.getElementById("recordBtn");
+  const audioInput = document.getElementById("audioInput");
+  const recordingIndicator = document.getElementById("recordingIndicator");
+  let mediaRecorder;
+  let audioChunks = [];
+  let loadingIndicatorId = null;
+
+  // Fonctions de gestion des sessions
+  function chargerSession(sessionId) {
+    window.location.href = `/repetiteur/chat/?session=${sessionId}`;
+  }
+
+  function afficherModalSoumissionGenerale() {
+    document.getElementById('modalTitre').textContent = 'Soumettre un cours';
+    document.getElementById('modalSessionId').value = '';
+    document.getElementById('modalSoumission').classList.remove('hidden');
+  }
+
+  function afficherModalSoumissionSession() {
+    const sessionId = document.getElementById('sessionId').value;
+    document.getElementById('modalTitre').textContent = 'Soumettre le cours pour cette session';
+    document.getElementById('modalSessionId').value = sessionId;
+    
+    document.getElementById('modalSoumission').classList.remove('hidden');
+  }
+
+  function fermerModal() {
+    document.getElementById('modalSoumission').classList.add('hidden');
+  }
+
+  // Basculer entre texte et fichier
+  document.querySelector('[name="type_soumission"]').addEventListener('change', function(e) {
+    const zoneTexte = document.getElementById('zoneTexte');
+    const zoneFichier = document.getElementById('zoneFichier');
+    
+    if (e.target.value === 'fichier') {
+      zoneTexte.classList.add('hidden');
+      zoneFichier.classList.remove('hidden');
+    } else {
+      zoneTexte.classList.remove('hidden');
+      zoneFichier.classList.add('hidden');
+    }
+  });
+
+  // Soumission de cours
+  async function soumettreCours(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+      const response = await fetch('/repetiteur/soumettre-cours/', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+      });
+      
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        alert('Cours soumis avec succès ! MrKarfour va l\'analyser.');
+        fermerModal();
+        
+        const sessionId = formData.get('session_id');
+        if (sessionId) {
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      alert('Erreur lors de la soumission');
+    }
+  }
+
+  // 🎤 Gestion de l'enregistrement vocal
+  recordBtn.addEventListener("click", async () => {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      recordBtn.innerHTML = `
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+        </svg>
+        <span class="hidden sm:inline">Parler</span>
+        <span class="sm:hidden">🎤</span>
+      `;
+      recordBtn.classList.remove("bg-red-600", "hover:bg-red-700");
+      recordBtn.classList.add("bg-amber-500", "hover:bg-amber-600");
+      recordingIndicator.classList.add("hidden");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        const file = new File([audioBlob], "question_audio.webm", { type: "audio/webm" });
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        audioInput.files = dataTransfer.files;
+
+        // Message vocal
+        messagesDiv.innerHTML += `
+          <div class="flex items-start justify-end space-x-2 mb-4">
+            <div class="bg-gradient-to-r from-amber-500 to-yellow-500 rounded-2xl rounded-tr-none px-3 py-2 shadow-sm border border-amber-200 max-w-[85%]">
+              <div class="flex items-center space-x-1 text-amber-800">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                </svg>
+                <span class="font-medium text-sm">Question vocale envoyée</span>
+              </div>
+              <span class="text-xs text-amber-600 mt-1 block">Analyse en cours...</span>
+            </div>
+            <div class="w-6 h-6 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+          </div>
+        `;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        setTimeout(() => {
+          form.requestSubmit();
+        }, 500);
+      };
+
+      mediaRecorder.start();
+      
+      recordBtn.innerHTML = `
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6 6h12v12H6z"/>
+        </svg>
+        <span class="hidden sm:inline">Arrêter</span>
+        <span class="sm:hidden">⏹️</span>
+      `;
+      recordBtn.classList.remove("bg-amber-500", "hover:bg-amber-600");
+      recordBtn.classList.add("bg-red-600", "hover:bg-red-700");
+      recordingIndicator.classList.remove("hidden");
+      
+    } catch (err) {
+      alert("Erreur d'accès au micro : " + err.message);
+    }
+  });
+
+  // Fonction pour supprimer l'indicateur de chargement
+  function supprimerIndicateurChargement() {
+    if (loadingIndicatorId) {
+      const loadingElement = document.getElementById(loadingIndicatorId);
+      if (loadingElement) {
+        loadingElement.remove();
+      }
+      loadingIndicatorId = null;
+    }
+  }
+
+  // 📤 Gestion de l'envoi et réception des messages
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const question = formData.get("question");
+
+    if (question.trim() === "" && (!audioInput.files || audioInput.files.length === 0)) {
+        alert("Veuillez écrire ou enregistrer un message audio avant d'envoyer !");
+        return;
+    }
+
+    // Afficher la question de l'élève (si texte)
+    if (question && question.trim() !== "") {
+        messagesDiv.innerHTML += `
+            <div class="flex items-start justify-end space-x-2 mb-4">
+                <div class="bg-gradient-to-r from-[#0EA7A7] to-teal-500 text-white rounded-2xl rounded-tr-none px-3 py-2 shadow-sm max-w-[85%]">
+                    <p class="text-sm">${question}</p>
+                    <span class="text-xs text-teal-100 mt-1 block">Maintenant</span>
+                </div>
+                <div class="w-6 h-6 bg-gradient-to-r from-[#0EA7A7] to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+            </div>
+        `;
+        document.getElementById("question").value = "";
+    }
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    // Supprimer tout indicateur de chargement existant
+    supprimerIndicateurChargement();
+
+    // Créer un nouvel indicateur de chargement avec un ID unique
+    loadingIndicatorId = 'loading-' + Date.now();
+    const loadingHTML = `
+        <div id="${loadingIndicatorId}" class="flex items-start space-x-2 mb-4">
+            <div class="w-6 h-6 bg-gradient-to-r from-[#0EA7A7] to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+            </div>
+            <div class="bg-white rounded-2xl rounded-tl-none px-3 py-2 shadow-sm border border-gray-200">
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <div class="flex space-x-1">
+                        <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                    <span class="text-sm">MrKarfour réfléchit...</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    messagesDiv.innerHTML += loadingHTML;
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    try {
+        const response = await fetch("", { 
+            method: "POST", 
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            throw new Error("Réponse invalide du serveur");
+        }
+
+        if (data.status === "error") {
+            throw new Error(data.error || "Erreur inconnue");
+        }
+
+        // Supprimer l'indicateur de chargement
+        supprimerIndicateurChargement();
+
+        let audioPlayer = '';
+        if (data.audio_url) {
+            audioPlayer = `
+                <div class="mt-2">
+                    <audio controls class="w-full mt-1 rounded-lg">
+                        <source src="${data.audio_url}" type="audio/mp3">
+                        Votre navigateur ne supporte pas l'élément audio.
+                    </audio>
+                </div>
+            `;
+        }
+
+        // Afficher la réponse de MrKarfour
+        messagesDiv.innerHTML += `
+            <div class="flex items-start space-x-2 mb-4">
+                <div class="w-6 h-6 bg-gradient-to-r from-[#0EA7A7] to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-none px-3 py-2 shadow-sm border border-gray-200 max-w-[85%]">
+                    <p class="text-gray-800 text-sm">${data.reponse}</p>
+                    ${audioPlayer}
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-xs text-gray-500">Maintenant</span>
+                        ${data.niveau_adapte ? `<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">${data.niveau_adapte}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    } catch (error) {
+        // Supprimer l'indicateur de chargement en cas d'erreur
+        supprimerIndicateurChargement();
+        
+        messagesDiv.innerHTML += `
+            <div class="flex items-start space-x-2 mb-4">
+                <div class="w-6 h-6 bg-gradient-to-r from-[#0EA7A7] to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-2xl rounded-tl-none px-3 py-2 max-w-[85%]">
+                    <p class="text-red-700 text-sm">${error.message || "Désolé, une erreur s'est produite. Veuillez réessayer."}</p>
+                    <span class="text-xs text-red-500 mt-1 block">Erreur de communication avec MrKarfour</span>
+                </div>
+            </div>
+        `;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+  });
+
+  // Focus automatique sur le champ de question
+  document.getElementById('question')?.focus();
+  </script>
+
+  {% endblock %}

@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer un Quiz - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">
+                Créer un nouveau quiz
+            </h1>
+
+            <form method="post" id="quiz-form">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    <!-- Informations de base du quiz -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-4">Informations du quiz</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Titre -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Titre du quiz *
+                                </label>
+                                <input type="text" name="titre" 
+                                       value="{{ form.titre.value|default:'' }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]"
+                                       required>
+                                {% if form.titre.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.titre.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Description -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Description
+                                </label>
+                                <textarea name="description" 
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]"
+                                          rows="3">{{ form.description.value|default:'' }}</textarea>
+                                {% if form.description.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Cours associé -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Cours associé *
+                                </label>
+                                <select name="cours" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]" required>
+                                    <option value="">Sélectionnez un cours</option>
+                                    {% for cours in form.cours.field.queryset %}
+                                    <option value="{{ cours.pk }}" {% if form.cours.value == cours.pk %}selected{% endif %}>
+                                        {{ cours.titre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.cours.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.cours.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Durée et Points -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Durée (minutes)
+                                    </label>
+                                    <input type="number" name="duree" 
+                                           value="{{ form.duree.value|default:30 }}"
+                                           min="1" max="180"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]">
+                                    {% if form.duree.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.duree.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Points maximum
+                                    </label>
+                                    <input type="number" name="points_max" 
+                                           value="{{ form.points_max.value|default:20 }}"
+                                           min="1" max="100"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]">
+                                    {% if form.points_max.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.points_max.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section des questions -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-700">Questions du quiz</h2>
+                            <button type="button" id="add-question" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md text-sm">
+                                + Ajouter une question
+                            </button>
+                        </div>
+
+                        <div id="questions-container" class="space-y-4">
+                            <!-- Les questions seront ajoutées ici dynamiquement -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    <a href="{% url 'cours:quiz_list' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-md transition duration-300">
+                        Annuler
+                    </a>
+                    <button type="submit" class="bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                        Créer le quiz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let questionCounter = 0;
+    let choiceCounters = {};
+    
+    // Template pour une nouvelle question
+    const questionTemplate = (questionId) => `
+        <div class="question-group border border-gray-200 rounded-lg p-4 bg-white" data-question-id="${questionId}">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-medium text-gray-700">Question ${questionId}</h3>
+                <button type="button" class="remove-question text-red-600 hover:text-red-800 text-sm">
+                    Supprimer
+                </button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Texte de la question *</label>
+                    <input type="text" name="new_question_texte_${questionId}" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]" 
+                           placeholder="Entrez la question..." required>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Points</label>
+                        <input type="number" name="new_question_points_${questionId}" value="1" min="1" max="10"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Ordre</label>
+                        <input type="number" name="new_question_ordre_${questionId}" value="${questionId}" min="1"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Explication</label>
+                    <textarea name="new_question_explication_${questionId}" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0EA7A7]"
+                              rows="2" placeholder="Explication de la réponse..."></textarea>
+                </div>
+
+                <!-- Choix de réponse -->
+                <div class="choices-container mt-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-sm font-medium text-gray-700">Choix de réponse</h4>
+                        <button type="button" class="add-choice bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded">
+                            + Ajouter un choix
+                        </button>
+                    </div>
+                    <div class="space-y-2 choices-list">
+                        <!-- Les choix seront ajoutés ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Template pour un nouveau choix
+    const choiceTemplate = (questionId, choiceId) => `
+        <div class="choice-group flex items-center space-x-2 p-2 border border-gray-100 rounded bg-white">
+            <input type="text" name="new_choice_texte_${questionId}_${choiceId}" 
+                   placeholder="Texte du choix" 
+                   class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" required>
+            <input type="number" name="new_choice_ordre_${questionId}_${choiceId}" 
+                   value="${choiceId}" placeholder="Ordre" min="1" max="10"
+                   class="w-20 px-2 py-2 border border-gray-300 rounded text-sm">
+            <label class="flex items-center space-x-1 text-sm">
+                <input type="checkbox" name="new_choice_correcte_${questionId}_${choiceId}" class="rounded">
+                <span>Correct</span>
+            </label>
+            <button type="button" class="remove-choice text-red-500 hover:text-red-700 text-sm">
+                ×
+            </button>
+        </div>
+    `;
+    
+    // Ajouter une question
+    document.getElementById('add-question').addEventListener('click', function() {
+        questionCounter++;
+        choiceCounters[questionCounter] = 0;
+        
+        const questionsContainer = document.getElementById('questions-container');
+        questionsContainer.insertAdjacentHTML('beforeend', questionTemplate(questionCounter));
+        
+        // Ajouter un premier choix par défaut
+        const newQuestion = questionsContainer.lastElementChild;
+        addChoiceToQuestion(newQuestion);
+        
+        attachEventListeners(newQuestion);
+    });
+    
+    // Ajouter un choix à une question
+    function addChoiceToQuestion(questionElement) {
+        const questionId = questionElement.dataset.questionId;
+        choiceCounters[questionId]++;
+        const choiceId = choiceCounters[questionId];
+        
+        const choicesList = questionElement.querySelector('.choices-list');
+        choicesList.insertAdjacentHTML('beforeend', choiceTemplate(questionId, choiceId));
+        
+        // Attacher l'événement de suppression au nouveau choix
+        const newChoice = choicesList.lastElementChild;
+        newChoice.querySelector('.remove-choice').addEventListener('click', function() {
+            newChoice.remove();
+        });
+    }
+    
+    // Attacher les écouteurs d'événements
+    function attachEventListeners(questionElement) {
+        // Supprimer une question
+        questionElement.querySelector('.remove-question').addEventListener('click', function() {
+            const questionId = questionElement.dataset.questionId;
+            delete choiceCounters[questionId];
+            questionElement.remove();
+            updateQuestionNumbers();
+        });
+        
+        // Ajouter un choix
+        questionElement.querySelector('.add-choice').addEventListener('click', function() {
+            addChoiceToQuestion(questionElement);
+        });
+    }
+    
+    // Mettre à jour les numéros des questions
+    function updateQuestionNumbers() {
+        const questions = document.querySelectorAll('.question-group');
+        questions.forEach((question, index) => {
+            const questionId = index + 1;
+            question.dataset.questionId = questionId;
+            question.querySelector('h3').textContent = `Question ${questionId}`;
+            question.querySelector('input[name^="new_question_ordre_"]').value = questionId;
+        });
+    }
+    
+    // Validation du formulaire
+    document.getElementById('quiz-form').addEventListener('submit', function(e) {
+        const questions = document.querySelectorAll('.question-group');
+        if (questions.length === 0) {
+            e.preventDefault();
+            alert('Veuillez ajouter au moins une question au quiz.');
+            return;
+        }
+        
+        // Vérifier que chaque question a au moins un choix
+        let valid = true;
+        questions.forEach(question => {
+            const choices = question.querySelectorAll('.choice-group');
+            if (choices.length === 0) {
+                valid = false;
+                alert('Chaque question doit avoir au moins un choix de réponse.');
+            }
+            
+            // Vérifier qu'au moins un choix est marqué comme correct
+            const hasCorrectChoice = Array.from(choices).some(choice => 
+                choice.querySelector('input[type="checkbox"]').checked
+            );
+            
+            if (!hasCorrectChoice) {
+                valid = false;
+                alert('Chaque question doit avoir au moins un choix correct.');
+            }
+        });
+        
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

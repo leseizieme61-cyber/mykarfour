@@ -1,0 +1,78 @@
+/* html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+ */
+body {
+    position: relative;
+    z-index: 1;
+    padding-top: 80px;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: -1;
+}
+
+html, body {
+    background-image: url("../img/background.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/* static/css/index.css */
+.group:hover .group-hover\:block {
+    display: block;
+}
+
+/* Animation pour le menu déroulant */
+.relative .hidden {
+    transition: all 0.3s ease;
+    transform: translateY(-10px);
+    opacity: 0;
+    display: none;
+}
+
+.relative .hidden.block {
+    transform: translateY(0);
+    opacity: 1;
+    display: block;
+}
+
+/* static/css/index.css */
+.group:hover .group-hover\:block {
+    display: block;
+}
+
+/* Animation pour le menu déroulant */
+.relative .hidden {
+    transition: all 0.3s ease;
+    transform: translateY(-10px);
+    opacity: 0;
+    display: none;
+}
+
+.relative .hidden.block {
+    transform: translateY(0);
+    opacity: 1;
+    display: block;
+}
+
+/* Styles pour le header */
+.bg-\[\#0EA7A7\] {
+    background-color: #0EA7A7;
+}
+
+.hover\:bg-\[\#0c8f8f\]:hover {
+    background-color: #0c8f8f;
+}
+
+

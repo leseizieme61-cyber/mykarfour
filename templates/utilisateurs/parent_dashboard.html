@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tableau de Bord Parent - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tableau de Bord Parent</h1>
+        <div class="text-muted">
+            <i class="fas fa-user-circle"></i> {{ request.user.first_name }} {{ request.user.last_name }}
+        </div>
+    </div>
+
+    <!-- Statistiques globales -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Enfants suivis
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ enfants.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Évaluations totales
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.evaluations_total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Quiz complétés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.quiz_total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-question-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Rappels envoyés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <a href="{% url 'rappels_list' %}" class="text-decoration-none">
+                                    {{ stats.rappels_total|default:"0" }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bell fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'rappels_list' %}" class="btn btn-primary btn-block">
+                                <i class="fas fa-bell"></i> Voir les rappels
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button class="btn btn-success btn-block" data-toggle="modal" data-target="#modalRappelManuel">
+                                <i class="fas fa-paper-plane"></i> Envoyer un rappel
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'programmer_sessions' %}" class="btn btn-info btn-block">
+                                <i class="fas fa-calendar-alt"></i> Programmer sessions
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'profil' %}" class="btn btn-secondary btn-block">
+                                <i class="fas fa-cog"></i> Paramètres
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des enfants -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Mes Enfants</h6>
+                </div>
+                <div class="card-body">
+                    {% if enfants %}
+                    <div class="row">
+                        {% for enfant in enfants %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card border-left-success shadow h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h6 class="text-primary font-weight-bold">
+                                                {{ enfant.user.username }}
+                                            </h6>
+                                            <p class="text-muted mb-2">
+                                                {{ enfant.user.first_name }} {{ enfant.user.last_name }} - 
+                                                <span class="badge {% if enfant.abonnement_actif %}badge-success{% else %}badge-warning{% endif %}">
+                                                    {% if enfant.abonnement_actif %}Actif{% else %}Inactif{% endif %}
+                                                </span>
+                                            </p>
+                                            <p class="text-muted mb-3">
+                                                <small>
+                                                    <i class="fas fa-graduation-cap"></i> {{ enfant.classe|default:"Non spécifiée" }}<br>
+                                                    <i class="fas fa-clock"></i> Dernière connexion: 
+                                                    {% if enfant.user.last_login %}
+                                                        {{ enfant.user.last_login|date:"d/m/Y H:i" }}
+                                                    {% else %}
+                                                        Jamais
+                                                    {% endif %}
+                                                </small>
+                                            </p>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'parent_evaluations_detail' enfant.id %}" 
+                                                   class="btn btn-outline-primary">
+                                                    <i class="fas fa-chart-line"></i> Évaluations
+                                                </a>
+                                                <a href="{% url 'parent_quiz_detail' enfant.id %}" 
+                                                   class="btn btn-outline-info">
+                                                    <i class="fas fa-question-circle"></i> Quiz
+                                                </a>
+                                                <a href="{% url 'rappels_enfant_detail' enfant.id %}" 
+                                                   class="btn btn-outline-warning">
+                                                    <i class="fas fa-bell"></i> Rappels
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                                {{ enfant.user.first_name.0 }}{{ enfant.user.last_name.0 }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun enfant associé</h5>
+                        <p class="text-muted">
+                            Liez vos enfants à votre compte pour suivre leur progression.
+                        </p>
+                        <a href="{% url 'lier_enfant' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Lier un enfant
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rappel Manuel -->
+<div class="modal fade" id="modalRappelManuel" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Envoyer un rappel manuel</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formRappelManuel">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="eleve_id">Élève</label>
+                        <select name="eleve_id" id="eleve_id" class="form-control" required>
+                            <option value="">Choisir un élève...</option>
+                            {% for enfant in enfants %}
+                            <option value="{{ enfant.id }}">{{ enfant.user.username }} ({{ enfant.user.first_name }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message personnalisé</label>
+                        <textarea name="message" id="message" class="form-control" rows="4" 
+                                  placeholder="Ex: N'oublie pas de réviser tes maths aujourd'hui !" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Envoyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Soumission du formulaire de rappel manuel
+document.getElementById('formRappelManuel')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{% url "envoyer_rappel_manuel" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Rappel envoyé avec succès !');
+            $('#modalRappelManuel').modal('hide');
+            this.reset();
+            location.reload();
+        } else {
+            alert('Erreur: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'envoi du rappel');
+    });
+});
+
+// Helper pour obtenir le CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

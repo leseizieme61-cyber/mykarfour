@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Évaluer {{ eleve.user.get_full_name }} - MyKarfour{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">
+                Évaluer {{ eleve.user.get_full_name }}
+            </h1>
+            <p class="text-gray-600 mb-6">Cours: {{ cours.titre }}</p>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    <!-- Note -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Note (sur 5) *
+                        </label>
+                        <div class="flex space-x-2">
+                            {% for i in "12345" %}
+                            <label class="flex-1 text-center">
+                                <input type="radio" name="note" value="{{ forloop.counter }}" 
+                                       class="sr-only peer"
+                                       {% if evaluation and evaluation.note == forloop.counter %}checked{% endif %}>
+                                <div class="w-full py-3 border-2 border-gray-300 rounded-lg cursor-pointer peer-checked:border-[#0EA7A7] peer-checked:bg-[#0EA7A7] peer-checked:text-white transition duration-200">
+                                    {{ forloop.counter }}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Commentaire -->
+                    <div>
+                        <label for="commentaire" class="block text-sm font-medium text-gray-700 mb-2">
+                            Commentaire
+                        </label>
+                        <textarea name="commentaire" id="commentaire" rows="4" 
+                                  class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring focus:ring-primary/30 focus:outline-none transition text-black"
+                                  placeholder="Commentaires sur le travail de l'élève...">{% if evaluation %}{{ evaluation.commentaire }}{% endif %}</textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    <a href="{% url 'cours:detail' cours.pk %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-md transition duration-300">
+                        Annuler
+                    </a>
+                    <button type="submit" class="bg-[#0EA7A7] hover:bg-teal-600 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                        {% if evaluation %}Modifier{% else %}Enregistrer{% endif %} l'évaluation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

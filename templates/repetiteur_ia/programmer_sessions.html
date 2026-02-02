@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %}Programmer les Sessions{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- En-tête -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-teal-800 mb-2">Programmation Automatique des Sessions</h1>
+        <p class="text-lg text-gray-600">Générez automatiquement des sessions de révision basées sur votre emploi du temps</p>
+    </div>
+
+    <!-- Carte principale -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
+        <div class="text-center">
+            <!-- Icône -->
+            <div class="mx-auto w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">Programmer les Sessions Automatiquement</h2>
+            <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Cette fonctionnalité analysera votre emploi du temps et créera automatiquement 
+                des sessions de révision optimisées pour vos matières.
+            </p>
+
+            <!-- Bouton de programmation -->
+            <button id="programmer-btn" 
+                    class="inline-flex items-center px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Lancer la Programmation Automatique
+            </button>
+
+            <!-- Informations supplémentaires -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-left">
+                <h3 class="font-medium text-blue-900 mb-2">Ce que cette action va faire :</h3>
+                <ul class="text-sm text-blue-800 space-y-1">
+                    <li class="flex items-start">
+                        <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Analyser votre emploi du temps actuel
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Identifier les créaux disponibles pour la révision
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Créer des sessions de révision personnalisées
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Répartir équitablement les matières à réviser
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zone de résultats -->
+    <div id="resultats" class="hidden">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Résultats de la Programmation</h3>
+            
+            <!-- Indicateur de chargement -->
+            <div id="loading" class="hidden text-center py-8">
+                <div class="inline-flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-teal-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-gray-600">Programmation en cours...</span>
+                </div>
+            </div>
+
+            <!-- Résultats succès -->
+            <div id="success-result" class="hidden">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-green-800" id="success-message">
+                                Sessions programmées avec succès !
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Détails de l'exécution :</h4>
+                    <pre id="output" class="text-xs text-gray-600 whitespace-pre-wrap bg-white p-3 rounded border"></pre>
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <a href="{% url 'repetiteur_ia:tableau_sessions' %}" 
+                       class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200">
+                        Voir mes sessions
+                    </a>
+                </div>
+            </div>
+
+            <!-- Résultats erreur -->
+            <div id="error-result" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800" id="error-message">
+                                Erreur lors de la programmation
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <p id="error-details"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <button onclick="retryProgrammation()" 
+                            class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200 mr-2">
+                        Réessayer
+                    </button>
+                    <a href="{% url 'repetiteur_ia:tableau_sessions' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        Retour au tableau
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations sur les sessions existantes -->
+    <div class="mt-8 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Vos Sessions Actuelles</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                <div class="text-2xl font-bold text-teal-700">{{ sessions_planifiees|default:0 }}</div>
+                <div class="text-sm text-teal-600">Sessions planifiées</div>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="text-2xl font-bold text-green-700">{{ sessions_terminees|default:0 }}</div>
+                <div class="text-sm text-green-600">Sessions terminées</div>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="text-2xl font-bold text-blue-700">{{ total_sessions|default:0 }}</div>
+                <div class="text-sm text-blue-600">Total sessions</div>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <a href="{% url 'repetiteur_ia:tableau_sessions' %}" 
+               class="inline-flex items-center px-4 py-2 border border-teal-300 text-teal-700 font-medium rounded-lg hover:bg-teal-50 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                Gérer mes sessions
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript pour gérer la programmation AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const programmerBtn = document.getElementById('programmer-btn');
+    const resultatsSection = document.getElementById('resultats');
+    const loadingSection = document.getElementById('loading');
+    const successResult = document.getElementById('success-result');
+    const errorResult = document.getElementById('error-result');
+    
+    programmerBtn.addEventListener('click', function() {
+        // Afficher la section résultats et le loading
+        resultatsSection.classList.remove('hidden');
+        loadingSection.classList.remove('hidden');
+        successResult.classList.add('hidden');
+        errorResult.classList.add('hidden');
+        
+        // Désactiver le bouton pendant le traitement
+        programmerBtn.disabled = true;
+        programmerBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Programmation en cours...
+        `;
+        
+        // Envoyer la requête AJAX
+        fetch('{% url "repetiteur_ia:programmer_sessions" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Cacher le loading
+            loadingSection.classList.add('hidden');
+            
+            if (data.status === 'success') {
+                // Afficher le succès
+                document.getElementById('success-message').textContent = data.message;
+                document.getElementById('output').textContent = data.output;
+                successResult.classList.remove('hidden');
+                
+                // Mettre à jour les statistiques si nécessaire
+                updateStatistics();
+            } else {
+                // Afficher l'erreur
+                document.getElementById('error-message').textContent = 'Erreur lors de la programmation';
+                document.getElementById('error-details').textContent = data.error;
+                errorResult.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            // Cacher le loading et afficher l'erreur
+            loadingSection.classList.add('hidden');
+            document.getElementById('error-message').textContent = 'Erreur réseau';
+            document.getElementById('error-details').textContent = error.toString();
+            errorResult.classList.remove('hidden');
+        })
+        .finally(() => {
+            // Réactiver le bouton
+            programmerBtn.disabled = false;
+            programmerBtn.innerHTML = `
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Lancer la Programmation Automatique
+            `;
+        });
+    });
+});
+
+function retryProgrammation() {
+    document.getElementById('programmer-btn').click();
+}
+
+function updateStatistics() {
+    // Recharger la page ou mettre à jour les statistiques via AJAX
+    setTimeout(() => {
+        window.location.reload();
+    }, 2000);
+}
+</script>
+{% endblock %}
