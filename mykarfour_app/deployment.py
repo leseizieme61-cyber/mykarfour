@@ -12,3 +12,4 @@ SECRET_KEY = os.environ.get('MY_SECRET_KEY', SECRET_KEY)
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
