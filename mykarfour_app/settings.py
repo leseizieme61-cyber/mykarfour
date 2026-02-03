@@ -2,26 +2,22 @@ from pathlib import Path
 import os
 import environ
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ================== SÉCURITÉ ==================
+SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+DEBUG = False
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9-dq6zswi368l8_4qt)-7f+m22hyi^l0elh+1nv1x8^w!$*ikm'
-
-DEBUG =  False
-
-APPEND_SLASH = False
-
-ALLOWED_HOSTS = ['mykarfour.azurewebsites.net']
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://c9d34914b191.ngrok-free.app"
+ALLOWED_HOSTS = [
+    "http://mykarfour.azurewebsites.net",  # remplace par ton vrai domaine Azure
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://mykarfour.azurewebsites.net",
+]
+
+# ================== APPS ==================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,22 +25,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'utilisateurs',
-    'django_extensions',
     'cours',
     'notifications',
     'paiement',
     'quiz',
     'repetiteur_ia',
+    'core',
+
     'rest_framework',
     'django_bootstrap5',
     'crispy_forms',
-    'core',
-    'channels'
+    'channels',
 ]
 
+# ================== MIDDLEWARE ==================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # IMPORTANT POUR AZURE
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,105 +72,57 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mykarfour_app.wsgi.application'
 ASGI_APPLICATION = 'mykarfour_app.asgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# ================== BASE DE DONNÉES ==================
 DATABASES = {
-     'default': {
-         'ENGINE': 'django.db.backends.postgresql',
-         'NAME': os.getenv('DB_NAME', 'mykarfour_db'),
-         'USER': os.getenv('DB_USER', 'postgres'),
-         'PASSWORD': os.getenv('DB_PASSWORD', ''),
-         'HOST': os.getenv('DB_HOST', 'localhost'),
-         'PORT': os.getenv('DB_PORT', 5432),
-     }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+    }
 }
 
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
+# ================== LANGUE ==================
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Africa/Libreville'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
+# ================== FICHIERS STATIQUES ==================
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Configuration Vectorstore
-VECTOR_STORE_PATH = os.path.join(BASE_DIR, "data", "vector_store.faiss")
-
+# ================== AUTH ==================
 AUTH_USER_MODEL = 'utilisateurs.Utilisateur'
-
 LOGIN_URL = 'connexion'
 LOGIN_REDIRECT_URL = 'profil'
 LOGOUT_REDIRECT_URL = 'accueil'
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
-CRISPY_TEMPLATE_PACK = 'bootstrap5'
+# ================== CRISPY ==================
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-
-# Configuration de l'API IA
+# ================== OPENAI ==================
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
 
-
-# IA_API_URL = 'https://api.openai.com/v1/completions'
-
-# # Configuration email
+# ================== EMAIL ==================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "maildev")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 1025))
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False") == "True"
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "angominkohyirimjohann@gmail.com")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-
-# # Configuration SMS
-# SMS_PROVIDER = config('SMS_PROVIDER', default='airtel')
-# AIRTEL_SMS_API_KEY = config('AIRTEL_SMS_API_KEY', default='')
-# AIRTEL_SMS_API_URL = config('AIRTEL_SMS_API_URL', default='https://api.airtel.africa/sms/v1/send')
-# AIRTEL_SENDER_ID = config('AIRTEL_SENDER_ID', default='REPETITEUR')
-# LIBERTIS_SMS_API_KEY = config('LIBERTIS_SMS_API_KEY', default='')
-# LIBERTIS_SMS_API_URL = config('LIBERTIS_SMS_API_URL', default='https://api.libertis.ci/sms/send')
-# LIBERTIS_SENDER_ID = config('LIBERTIS_SENDER_ID', default='REPETITEUR')
-
-# Configuration SINGPAY
-SINGPAY_CLIENT_ID = "46abf755-d18c-46f8-a7c1-6f12cab94673"
-SINGPAY_CLIENT_SECRET = "f49c4e98162452e796e2c08aae032dd77b5cbf712bb619e33f8011052885488f"
-SINGPAY_WALLET = "64c151d6da4b4c7e9abc691c"
-SINGPAY_DISBURSEMENT = "660051e9fb48d1d824589b97"
-
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# channel layer (Redis)
+# ================== CHANNELS (REDIS) ==================
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -181,5 +132,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-# site url (utilisé pour lien dans emails, optionnel)
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
