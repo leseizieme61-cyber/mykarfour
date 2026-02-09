@@ -25,6 +25,7 @@ torch==2.10.0
 chromadb==1.1.1
 tiktoken==0.12.0
 sentence-transformers==2.2.2
+huggingface_hub==0.14.1
 
 # Async/Celery
 celery
@@ -46,4 +47,5 @@ gTTS==2.5.4
 
 # Development
 uvicorn==0.37.0
+
 
