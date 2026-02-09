@@ -43,19 +43,26 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # =========================
-# Créer dossier staticfiles et collect static
+# Permissions et staticfiles
 # =========================
-RUN mkdir -p /app/staticfiles
-RUN python manage.py migrate --noinput
-RUN python manage.py collectstatic --noinput
+RUN mkdir -p /app/staticfiles /app/media
+RUN chmod -R 755 /app/staticfiles /app/media
 
 # =========================
-# Exposer le port (Dockploy utilise $PORT)
+# Migration et collectstatic (optionnel, peut être fait au runtime)
 # =========================
-ENV PORT 8000
-EXPOSE ${PORT}
+# RUN python manage.py migrate --noinput
+# RUN python manage.py collectstatic --noinput
 
 # =========================
-# Commande de démarrage gunicorn
+# Exposer le port
 # =========================
-CMD ["gunicorn", "mykarfour_app.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--workers", "3"]
+EXPOSE 8000
+
+# =========================
+# Script d'entrée
+# =========================
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./start.sh"]
