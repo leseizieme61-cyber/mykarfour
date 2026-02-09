@@ -5,7 +5,6 @@ ENV PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
-# Dépendances système
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
