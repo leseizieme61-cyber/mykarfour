@@ -56,6 +56,6 @@ ENV PORT 8000
 EXPOSE ${PORT}
 
 # =========================
-# Commande de démarrage Daphne
+# Commande de démarrage gunicorn
 # =========================
-CMD ["daphne", "-b", "0.0.0.0", "-p", "${PORT}", "mykarfour_app.asgi:application"]
+CMD ["gunicorn", "mykarfour_app.asgi:application", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--workers", "3"]
