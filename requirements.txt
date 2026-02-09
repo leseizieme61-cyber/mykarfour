@@ -24,10 +24,10 @@ anyio==4.10.0
 asgiref==3.9.1
 
 # NLP / AI (fixé pour 3.12)
-tokenizers==0.18.0
-transformers==4.38.0
+tokenizers==0.20.3
+transformers==4.41.2
 sentence-transformers==2.2.2
-huggingface-hub==0.13.4
+huggingface-hub==0.15.1
 
 # Utilitaires
 python-dotenv==1.1.1
@@ -39,3 +39,4 @@ tqdm==4.67.1
 numpy==2.3.3
 scipy==1.16.2
 scikit-learn==1.7.2
+
