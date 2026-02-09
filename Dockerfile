@@ -13,15 +13,17 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Python deps
-COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+# Upgrade pip + setuptools
+RUN pip install --upgrade pip setuptools wheel
 
-# App
+# Installer les dépendances Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le projet
 COPY . .
 
-# Collect static
+# Collect static files
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
