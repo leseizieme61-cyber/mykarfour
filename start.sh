@@ -1,27 +1,61 @@
 #!/bin/bash
+set -e
 
-# Attendre que la base de données soit prête (optionnel)
-# while ! nc -z $DB_HOST $DB_PORT; do
-#   sleep 0.1
-# done
+# =========================
+# Configuration
+# =========================
+PORT=${PORT:-8000}
+HOST=${HOST:-0.0.0.0}
+WORKERS=${WORKERS:-3}
 
-# Appliquer les migrations
+# =========================
+# Attendre PostgreSQL
+# =========================
+if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
+    echo "En attente de PostgreSQL à $DB_HOST:$DB_PORT..."
+    while ! nc -z $DB_HOST $DB_PORT; do
+        sleep 1
+    done
+    echo "PostgreSQL est prêt!"
+fi
+
+# =========================
+# Migrations Django
+# =========================
+echo "Application des migrations..."
 python manage.py migrate --noinput
 
-# Collecter les fichiers statiques
+# =========================
+# Fichiers statiques
+# =========================
+echo "Collecte des fichiers statiques..."
 python manage.py collectstatic --noinput
 
-# Créer le superutilisateur si nécessaire (optionnel)
-# python manage.py createsuperuser --noinput || true
+# =========================
+# Superutilisateur (optionnel)
+# =========================
+echo "Vérification du superutilisateur..."
+python -c "
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mykarfour_app.settings')
+import django
+django.setup()
+from django.contrib.auth import get_user_model
+User = get_user_model()
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+    print('✅ Superutilisateur créé')
+else:
+    print('✅ Superutilisateur existe déjà')
+" || echo "⚠️  Impossible de créer le superutilisateur"
 
-# Démarrer Daphne ou Gunicorn
-if [ "$USE_ASGI" = "true" ]; then
-    echo "Starting Daphne (ASGI)..."
-    daphne -b 0.0.0.0 -p 8000 mykarfour_app.asgi:application
-else
-    echo "Starting Gunicorn (WSGI)..."
-    gunicorn mykarfour_app.wsgi:application \
-        --bind 0.0.0.0:8000 \
-        --workers 3 \
-        --worker-class sync
-fi
+# =========================
+# Démarrer Gunicorn
+# =========================
+echo "🚀 Démarrage de Gunicorn sur $HOST:$PORT avec $WORKERS workers..."
+exec gunicorn mykarfour_app.wsgi:application \
+    --bind $HOST:$PORT \
+    --workers $WORKERS \
+    --worker-class sync \
+    --access-logfile - \
+    --error-logfile -
