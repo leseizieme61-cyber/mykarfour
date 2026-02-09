@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import environ
+import dj_database_url
 
 # =========================
 # 📁 BASE DIR
@@ -9,7 +10,7 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
-# 🌱 ENVIRONNEMENT
+# 🌱 ENV
 # =========================
 
 env = environ.Env(
@@ -19,27 +20,29 @@ env = environ.Env(
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # =========================
-# 🔐 SÉCURITÉ
+# 🔐 SECURITY
 # =========================
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
 
-DEBUG = env("DEBUG")
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 CSRF_TRUSTED_ORIGINS = env.list(
     "CSRF_TRUSTED_ORIGINS",
-    default=["*"]
+    default=[]
 )
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+# Dockploy gère le HTTPS
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # =========================
-# 📦 APPLICATIONS
+# 📦 APPS
 # =========================
 
 INSTALLED_APPS = [
@@ -51,7 +54,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Apps locales
+    # Local
     "utilisateurs",
     "cours",
     "notifications",
@@ -60,7 +63,7 @@ INSTALLED_APPS = [
     "repetiteur_ia",
     "core",
 
-    # Tierces
+    # Third-party
     "rest_framework",
     "django_bootstrap5",
     "crispy_forms",
@@ -109,18 +112,14 @@ WSGI_APPLICATION = "mykarfour_app.wsgi.application"
 ASGI_APPLICATION = "mykarfour_app.asgi.application"
 
 # =========================
-# 🗄️ BASE DE DONNÉES (POSTGRES)
+# 🗄️ DATABASE (POSTGRES)
 # =========================
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT", default="5432"),
-    }
+    "default": dj_database_url.config(
+        default=env("DATABASE_URL"),
+        conn_max_age=600,
+    )
 }
 
 # =========================
@@ -141,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # =========================
-# 🌍 INTERNATIONALISATION
+# 🌍 I18N
 # =========================
 
 LANGUAGE_CODE = "fr-fr"
@@ -151,7 +150,7 @@ USE_I18N = True
 USE_TZ = True
 
 # =========================
-# 📁 STATIC & MEDIA
+# 📁 STATIC / MEDIA
 # =========================
 
 STATIC_URL = "/static/"
@@ -207,7 +206,7 @@ CHANNEL_LAYERS = {
 SITE_URL = env("SITE_URL", default="http://localhost:8000")
 
 # =========================
-# 🆔 DIVERS
+# 🆔 MISC
 # =========================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
