@@ -139,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-WHITENOISE_VERBOSE_LOGGING = True
+
 # =========================
 # 🌍 I18N
 # =========================
@@ -158,6 +158,16 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Configuration Whitenoise
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_ALLOW_ALL_ORIGINS = True
+WHITENOISE_INDEX_FILE = True
+WHITENOISE_ROOT = BASE_DIR / 'staticfiles'
+
+# Pour les fichiers qui ne sont pas dans le manifest
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
