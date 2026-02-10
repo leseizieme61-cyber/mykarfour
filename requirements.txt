@@ -32,6 +32,7 @@ langchain
 langchain-community
 langchain-core
 langchain-openai
+numpy
 
 # =========================
 # Async / Celery / Channels
@@ -61,3 +62,4 @@ gTTS
 # Development
 # =========================
 uvicorn
+
