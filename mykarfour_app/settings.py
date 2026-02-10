@@ -18,6 +18,11 @@ env = environ.Env(
 )
 
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+# ======================
+# Sécurité proxy Dokploy
+# ======================
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # =========================
 # 🔐 SECURITY
@@ -27,19 +32,19 @@ SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
 
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
-CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS",
-    default=[]
-)
+
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# Dockploy gère le HTTPS
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+# ======================
+# Cookies HTTPS
+# ======================
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # =========================
 # 📦 APPS
