@@ -1,4 +1,4 @@
-mon setting from pathlib import Path
+from pathlib import Path
 import os
 import environ
 import dj_database_url
