@@ -32,6 +32,13 @@ echo "Collecte des fichiers statiques..."
 python manage.py collectstatic --noinput
 
 # =========================
+# Vérifier les permissions (optionnel, pour être sûr)
+# =========================
+chmod -R 755 /app/staticfiles
+chmod -R 755 /app/media
+
+
+# =========================
 # Superutilisateur (optionnel)
 # =========================
 echo "Vérification du superutilisateur..."
