@@ -1,7 +1,22 @@
+# mykarfour_app/asgi.py
 import os
+import django
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+from django.core.asgi import get_asgi_application
 
-from django.core.wsgi import get_wsgi_application
-settings_module = 'mykarfour_app.deployment' if os.environ.get('WEBSITE_HOSTNAME') else 'mykarfour_app.settings'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mykarfour_app.settings')
+django.setup()
 
-application = get_wsgi_application()
+# Importez vos routings WebSocket ici si vous en avez
+# from votre_app.routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": AuthMiddlewareStack(
+        URLRouter(
+            # Ajoutez vos routes WebSocket ici
+            # websocket_urlpatterns
+        )
+    ),
+})
