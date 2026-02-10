@@ -11,12 +11,12 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 
 # =========================
-# Travail dans / (projet à la racine)
+# Travail dans /
 # =========================
 WORKDIR /
 
 # =========================
-# Dépendances système
+# Dépendances système pour numpy, torch, PIL, OpenCV, etc.
 # =========================
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -25,11 +25,23 @@ RUN apt-get update && apt-get install -y \
     wget \
     git \
     netcat-openbsd \
-    libstdc++6 libgomp1 libopenblas-dev liblapack-dev gfortran \
-    libjpeg-dev libpng-dev libtiff-dev \
-    libavcodec-dev libavformat-dev libswscale-dev libv4l-dev \
-    libxvidcore-dev libx264-dev \
-    libsm6 libxext6 libxrender-dev \
+    libstdc++6 \
+    libgomp1 \
+    libopenblas-dev \
+    liblapack-dev \
+    gfortran \
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    libv4l-dev \
+    libxvidcore-dev \
+    libx264-dev \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # =========================
@@ -39,11 +51,11 @@ RUN python -m venv /opt/venv
 RUN pip install --upgrade pip setuptools wheel
 
 # =========================
-# Copier requirements et installer dépendances
+# Copier requirements et installer les dépendances
 # =========================
 COPY requirements.txt .
 
-# Installer numpy précompilé compatible Python 3.12
+# Installer numpy stable précompilé
 RUN pip install --no-cache-dir numpy==1.25.2
 
 # Installer torch CPU
@@ -58,7 +70,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # =========================
-# Permissions staticfiles / media
+# Permissions et staticfiles
 # =========================
 RUN mkdir -p staticfiles media
 RUN chmod -R 755 staticfiles media
@@ -78,9 +90,10 @@ EXPOSE 8000
 # =========================
 COPY start.sh .
 RUN chmod +x start.sh
+
 ENTRYPOINT ["./start.sh"]
 
 # =========================
-# Commande par défaut
+# Commande par défaut (fallback)
 # =========================
 CMD ["gunicorn", "mykarfour_app.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
