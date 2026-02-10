@@ -21,8 +21,6 @@ django-environ>=0.10,<1.0
 # =========================
 # IA / ML / NLP
 # =========================
-numpy==1.25.2            # précompilé, compatible Python 3.12
-torch==2.0.1             # version CPU
 transformers>=4.40,<5
 sentence-transformers>=2.2,<3
 huggingface_hub>=0.17,<1
@@ -62,3 +60,4 @@ gTTS>=2.3,<3
 # Development
 # =========================
 uvicorn>=0.23,<1
+
