@@ -56,8 +56,8 @@ RUN pip install --upgrade pip setuptools wheel
 COPY requirements.txt .
 
 # Installer numpy stable précompilé
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir numpy==1.25.2
-
 # Installer torch CPU
 RUN pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
 
