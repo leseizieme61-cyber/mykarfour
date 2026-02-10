@@ -1,5 +1,5 @@
 # =========================
-# Base Image - Utilisez python:3.12 complet au lieu de slim
+# Base Image
 # =========================
 FROM python:3.12
 
@@ -11,12 +11,12 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 
 # =========================
-# Travail dans / (car votre projet est à la racine)
+# Travail dans / (projet à la racine)
 # =========================
 WORKDIR /
 
 # =========================
-# Dépendances système COMPLÈTES pour numpy, torch, transformers, etc.
+# Dépendances système
 # =========================
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -25,26 +25,11 @@ RUN apt-get update && apt-get install -y \
     wget \
     git \
     netcat-openbsd \
-    # DÉPENDANCES CRITIQUES pour numpy
-    libstdc++6 \
-    libgomp1 \
-    libopenblas-dev \
-    liblapack-dev \
-    gfortran \
-    # Dépendances pour torch et autres bibliothèques scientifiques
-    libjpeg-dev \
-    libpng-dev \
-    libtiff-dev \
-    libavcodec-dev \
-    libavformat-dev \
-    libswscale-dev \
-    libv4l-dev \
-    libxvidcore-dev \
-    libx264-dev \
-    # Autres
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
+    libstdc++6 libgomp1 libopenblas-dev liblapack-dev gfortran \
+    libjpeg-dev libpng-dev libtiff-dev \
+    libavcodec-dev libavformat-dev libswscale-dev libv4l-dev \
+    libxvidcore-dev libx264-dev \
+    libsm6 libxext6 libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # =========================
@@ -54,17 +39,17 @@ RUN python -m venv /opt/venv
 RUN pip install --upgrade pip setuptools wheel
 
 # =========================
-# Copier requirements et installer AVEC optimisation
+# Copier requirements et installer dépendances
 # =========================
 COPY requirements.txt .
 
-# Installez d'abord numpy avec compilation pour éviter les problèmes
-RUN pip install --no-cache-dir --no-binary :all: numpy==1.24.3
+# Installer numpy précompilé compatible Python 3.12
+RUN pip install --no-cache-dir numpy==1.25.2
 
-# Puis installez torch avec la version CPU pour éviter les problèmes GPU
+# Installer torch CPU
 RUN pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
 
-# Enfin, installez le reste des dépendances
+# Installer le reste des dépendances
 RUN pip install --no-cache-dir -r requirements.txt
 
 # =========================
@@ -73,7 +58,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # =========================
-# Permissions et staticfiles
+# Permissions staticfiles / media
 # =========================
 RUN mkdir -p staticfiles media
 RUN chmod -R 755 staticfiles media
@@ -89,14 +74,13 @@ RUN python manage.py collectstatic --noinput --clear
 EXPOSE 8000
 
 # =========================
-# Script d'entrée amélioré
+# Script d'entrée
 # =========================
 COPY start.sh .
 RUN chmod +x start.sh
-
 ENTRYPOINT ["./start.sh"]
 
 # =========================
-# Commande par défaut (fallback)
+# Commande par défaut
 # =========================
 CMD ["gunicorn", "mykarfour_app.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
