@@ -13,10 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 🌱 ENV
 # =========================
 
-env = environ.Env(
-    DEBUG=(bool, False)
-)
-
+env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # =========================
@@ -24,15 +21,11 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # =========================
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
-
 DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
-CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS",
-    default=[]
-)
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -54,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Local
+    # Local apps
     "utilisateurs",
     "cours",
     "notifications",
@@ -76,7 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # 👈 important
 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -108,11 +101,15 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "mykarfour_app.wsgi.application"
+# =========================
+# 🚦 ASGI / WSGI
+# =========================
+
 ASGI_APPLICATION = "mykarfour_app.asgi.application"
+WSGI_APPLICATION = "mykarfour_app.wsgi.application"
 
 # =========================
-# 🗄️ DATABASE (POSTGRES)
+# 🗄️ DATABASE
 # =========================
 
 DATABASES = {
@@ -139,7 +136,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-
 # =========================
 # 🌍 I18N
 # =========================
@@ -151,26 +147,24 @@ USE_I18N = True
 USE_TZ = True
 
 # =========================
-# 📁 STATIC / MEDIA
+# 📁 STATIC / MEDIA (✅ CORRIGÉ)
 # =========================
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-# Configuration Whitenoise
-WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
-WHITENOISE_ALLOW_ALL_ORIGINS = True
-WHITENOISE_INDEX_FILE = True
-WHITENOISE_ROOT = BASE_DIR / 'staticfiles'
-
-# Pour les fichiers qui ne sont pas dans le manifest
-WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# ❌ SUPPRIMÉ CAR INUTILE / DANGEREUX EN PROD :
+# WHITENOISE_ROOT
+# WHITENOISE_INDEX_FILE
+# WHITENOISE_ALLOW_ALL_ORIGINS
+# WHITENOISE_USE_FINDERS
+# WHITENOISE_SKIP_COMPRESS_EXTENSIONS
 
 # =========================
 # 🎨 CRISPY
@@ -178,12 +172,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
-
-# =========================
-# 🤖 OPENAI
-# =========================
-
-OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
 
 # =========================
 # ✉️ EMAIL
