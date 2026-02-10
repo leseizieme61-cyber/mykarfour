@@ -1,65 +1,64 @@
 # =========================
 # Core Django
 # =========================
-Django
-gunicorn
-whitenoise
-dj-database-url
-psycopg2-binary
+Django>=4.2,<5
+gunicorn>=21.0,<22
+whitenoise>=6.5,<7
+dj-database-url>=1.0,<2
+psycopg2-binary>=2.9,<3
 
 # =========================
 # Django Extensions
 # =========================
-django-bootstrap5
-django-crispy-forms
-django-cors-headers
-djangorestframework
-djangorestframework-simplejwt
-django-extensions
-django-environ
+django-bootstrap5>=22.0,<23
+django-crispy-forms>=2.0,<3
+django-cors-headers>=4.0,<5
+djangorestframework>=3.14,<4
+djangorestframework-simplejwt>=5.2,<6
+django-extensions>=4.0,<5
+django-environ>=0.10,<1.0
 
 # =========================
 # IA / ML / NLP
 # =========================
-torch
-transformers
-sentence-transformers
-huggingface_hub
-chromadb
-tiktoken
-openai
-langchain
-langchain-community
-langchain-core
-langchain-openai
-numpy
+numpy==1.25.2            # précompilé, compatible Python 3.12
+torch==2.0.1             # version CPU
+transformers>=4.40,<5
+sentence-transformers>=2.2,<3
+huggingface_hub>=0.17,<1
+chromadb>=0.4,<1
+tiktoken>=0.4,<1
+openai>=1.0,<1.5
+langchain>=0.1.5,<1
+langchain-community>=0.0.36,<1
+langchain-core>=0.1.9,<1
+langchain-openai>=0.1.1,<1
 
 # =========================
 # Async / Celery / Channels
 # =========================
-celery
-redis
-channels
-channels-redis
-daphne
+celery>=5.3,<6
+redis>=5.0,<6
+channels>=4.0,<5
+channels-redis>=4.0,<5
+daphne>=4.0,<5
 
 # =========================
 # Utilities
 # =========================
-pillow
-python-dotenv
-requests
-PyJWT
-pydantic
-pydantic-settings
+pillow>=10.0,<11
+python-dotenv>=1.0,<2
+requests>=2.31,<3
+PyJWT>=2.7,<3
+pydantic>=2.2,<3
+pydantic-settings>=2.2,<3
 
 # =========================
 # Audio / Text
 # =========================
-gTTS
+gTTS>=2.3,<3
 
 # =========================
 # Development
 # =========================
-uvicorn
-
+uvicorn>=0.23,<1
