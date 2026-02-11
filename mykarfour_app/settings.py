@@ -31,23 +31,8 @@ SECURE_SSL_REDIRECT = False  # Traefik gère déjà le HTTPS
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = env.list(
-    "ALLOWED_HOSTS",
-    default=[
-        "srv1344041.hstgr.cloud",
-        "www.srv1344041.hstgr.cloud",
-        "localhost",
-        "127.0.0.1",
-    ],
-)
-
-CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS",
-    default=[
-        "https://srv1344041.hstgr.cloud",
-        "https://www.srv1344041.hstgr.cloud",
-    ],
-)
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://*"]
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
