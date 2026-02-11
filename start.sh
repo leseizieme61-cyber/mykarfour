@@ -55,7 +55,7 @@ else:
 " || echo "⚠️ Impossible de créer le superutilisateur"
 
 # =========================
-# Démarrer Daphne (ASGI)
+# Démarrer Gunicorn (WSGI)
 # =========================
-echo "🚀 Démarrage de Daphne sur $HOST:$PORT..."
-exec daphne -b $HOST -p $PORT mykarfour_app.asgi:application
+echo "🚀 Démarrage de Gunicorn sur $HOST:$PORT..."
+exec gunicorn mykarfour_app.wsgi:application --bind $HOST:$PORT --workers 3 --timeout 120 --keepalive 5 --access-logfile - --error-logfile -
