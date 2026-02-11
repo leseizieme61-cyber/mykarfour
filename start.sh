@@ -1,42 +1,43 @@
 #!/bin/bash
 set -e
 
-# =========================
-# Configuration
-# =========================
-PORT=${PORT:-8000}
 HOST=${HOST:-0.0.0.0}
-WORKERS=${WORKERS:-3}
+PORT=${PORT:-8000}
 
 # =========================
-# Attendre PostgreSQL
+# Attente PostgreSQL
 # =========================
-if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
-    echo "En attente de PostgreSQL à $DB_HOST:$DB_PORT..."
-    while ! nc -z $DB_HOST $DB_PORT; do
-        sleep 1
-    done
-    echo "PostgreSQL est prêt!"
+if [ -n "$DATABASE_URL" ]; then
+    DB_HOST=$(echo "$DATABASE_URL" | grep -oP "@\K[^:]+" || echo "")
+    DB_PORT=$(echo "$DATABASE_URL" | grep -oP ":[0-9]+(?=/)" | tr -d ":" || echo "")
+    if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
+        echo "⏳ En attente de PostgreSQL à $DB_HOST:$DB_PORT..."
+        for i in {1..30}; do
+            if nc -z $DB_HOST $DB_PORT 2>/dev/null; then
+                echo "✅ PostgreSQL prêt!"
+                break
+            fi
+            sleep 1
+        done
+    fi
 fi
 
 # =========================
 # Migrations Django
 # =========================
-echo "Application des migrations..."
+echo "🔄 Application des migrations..."
 python manage.py migrate --noinput
 
 # =========================
-# Fichiers statiques
+# Collectstatic
 # =========================
-echo "Collecte des fichiers statiques..."
+echo "📁 Collecte des fichiers statiques..."
 python manage.py collectstatic --noinput
 
 # =========================
-# Vérifier les permissions (optionnel, pour être sûr)
+# Permissions
 # =========================
-chmod -R 755 /app/staticfiles
-chmod -R 755 /app/media
-
+chmod -R 755 /app/staticfiles /app/media
 
 # =========================
 # Superutilisateur (optionnel)
@@ -57,12 +58,7 @@ else:
 " || echo "⚠️  Impossible de créer le superutilisateur"
 
 # =========================
-# Démarrer Gunicorn
+# Lancement Daphne
 # =========================
-echo "🚀 Démarrage de Gunicorn sur $HOST:$PORT avec $WORKERS workers..."
-exec gunicorn mykarfour_app.wsgi:application \
-    --bind $HOST:$PORT \
-    --workers $WORKERS \
-    --worker-class sync \
-    --access-logfile - \
-    --error-logfile -
+echo "🚀 Démarrage de Daphne sur $HOST:$PORT..."
+exec daphne -b $HOST -p $PORT mykarfour_app.asgi:application
