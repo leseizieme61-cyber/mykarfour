@@ -1,15 +1,17 @@
-
-FROM python:3.13
+# =========================
+# Image de base : Python 3.12.3 spécifique
+# =========================
+FROM python:3.12.3-slim-bullseye
 
 # =========================
-# Environnement Python
+# Environnements Python
 # =========================
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 
 # =========================
-# Répertoire de travail = /
+# Travail à la racine (correspond à BASE_DIR = /)
 # =========================
 WORKDIR /
 
@@ -26,41 +28,41 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # =========================
-# Créer venv avec Python 3.12
+# Créer venv et mettre à jour pip / setuptools
 # =========================
 RUN python -m venv /opt/venv
 RUN /opt/venv/bin/pip install --upgrade pip==24.0 setuptools==69.5.0 wheel==0.43.0
 
 # =========================
-# Installer NumPy (version compatible)
+# Installer NumPy 1.24.3 (compatible Python 3.12)
 # =========================
 RUN /opt/venv/bin/pip install --no-cache-dir numpy==1.24.3
 
 # =========================
-# Installer Torch (CPU)
+# Installer Torch CPU
 # =========================
 RUN /opt/venv/bin/pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
 
 # =========================
-# Installer les autres dépendances (sans NumPy)
+# Copier requirements et installer le reste
 # =========================
 COPY requirements.txt .
 RUN grep -v "^numpy==" requirements.txt > /tmp/requirements_no_numpy.txt
 RUN /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements_no_numpy.txt
 
 # =========================
-# Copier tout le projet à la racine (/)
+# Copier le code
 # =========================
 COPY . .
 
 # =========================
-# Créer les dossiers staticfiles et media à la racine
+# Créer les dossiers staticfiles et media
 # =========================
 RUN mkdir -p staticfiles media
 RUN chmod -R 755 staticfiles media
 
 # =========================
-# Collectstatic pendant le build (avec vars d'environnement bidon)
+# Collectstatic avec des valeurs par défaut pour le build
 # =========================
 RUN /opt/venv/bin/python -c "
 import os
@@ -75,24 +77,26 @@ from django.core.management import execute_from_command_line
 execute_from_command_line(['manage.py', 'collectstatic', '--noinput', '--clear'])
 "
 
-# =========================
-# Exposer le port
-# =========================
 EXPOSE 8000
 
 # =========================
-# Script d'entrée (start.sh intégré)
+# Script d'entrée
 # =========================
 RUN echo '#!/bin/bash\n\
 set -e\n\
 \n\
 echo "🚀 Démarrage de l’application..."\n\
 \n\
+# Vérifier Python et les dépendances\n\
 python --version\n\
 python -c "import numpy; print(f\"✅ NumPy {numpy.__version__}\")"\n\
+python -c "import django; print(f\"✅ Django {django.__version__}\")"\n\
 \n\
-# S’assurer que staticfiles existe (au cas où)\n\
-mkdir -p staticfiles\n\
+# S’assurer que staticfiles existe\n\
+if [ ! -d "staticfiles" ]; then\n\
+    echo "📁 Création de staticfiles..."\n\
+    mkdir -p staticfiles\n\
+fi\n\
 chmod -R 755 staticfiles\n\
 \n\
 # Attendre PostgreSQL si nécessaire\n\
@@ -115,7 +119,7 @@ fi\n\
 echo "🔄 Application des migrations..."\n\
 python manage.py migrate --noinput\n\
 \n\
-# Collecte des fichiers statiques\n\
+# Collectstatic (au cas où)\n\
 echo "📁 Collecte des fichiers statiques..."\n\
 python manage.py collectstatic --noinput\n\
 \n\
