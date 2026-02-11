@@ -1,52 +1,53 @@
-FROM python:3.12-slim
+# =========================
+# Base PROD (OBLIGATOIRE POUR DOKPLOY)
+# =========================
+FROM python:3.12-slim AS prod
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y gcc libpq-dev netcat-openbsd && \
-    rm -rf /var/lib/apt/lists/*
+# =========================
+# Dépendances système
+# =========================
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    curl \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
+# =========================
+# Dépendances Python
+# =========================
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
+
+# =========================
+# Code application
+# =========================
 COPY . .
 
+# =========================
+# Static / Media
+# =========================
+RUN mkdir -p staticfiles media \
+    && chmod -R 755 staticfiles media
+
+# =========================
+# Collectstatic (safe)
+# =========================
+RUN python manage.py collectstatic --noinput || true
+
+# =========================
+# Port
+# =========================
 EXPOSE 8000
 
-# Script de démarrage
-RUN echo '#!/bin/sh\n\
-set -e\n\
-\n\
-echo "🚀 Démarrage Django avec Daphne"\n\
-\n\
-python --version\n\
-\n\
-# Créer staticfiles si absent\n\
-mkdir -p staticfiles\n\
-\n\
-# Attente PostgreSQL\n\
-if [ -n "$DATABASE_URL" ]; then\n\
-  DB_HOST=$(echo "$DATABASE_URL" | sed -n "s|.*@\\([^:/]*\\).*|\\1|p")\n\
-  DB_PORT=$(echo "$DATABASE_URL" | sed -n "s|.*:\\([0-9]*\\)/.*|\\1|p")\n\
-  echo "⏳ Attente DB $DB_HOST:$DB_PORT"\n\
-  for i in $(seq 1 30); do\n\
-    nc -z $DB_HOST $DB_PORT && break\n\
-    sleep 1\n\
-  done\n\
-fi\n\
-\n\
-echo "🔄 Migrations"\n\
-python manage.py migrate --noinput\n\
-\n\
-echo "📦 Collectstatic"\n\
-python manage.py collectstatic --noinput\n\
-\n\
-echo "🚀 Lancement Daphne"\n\
-exec daphne -b 0.0.0.0 -p 8000 mykarfour_app.asgi:application\n\
-' > /start.sh
-
-RUN chmod +x /start.sh
-
-ENTRYPOINT ["/start.sh"]
+# =========================
+# Lancement avec DAPHNE
+# =========================
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "mykarfour_app.asgi:application"]
