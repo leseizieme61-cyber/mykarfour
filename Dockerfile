@@ -29,11 +29,10 @@ COPY . .
 
 RUN mkdir -p staticfiles media && chmod -R 755 staticfiles media
 
-# Collectstatic avec heredoc – CORRIGÉ !
 RUN /opt/venv/bin/python << 'EOF'
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mykarfour_app.settings')
-os.environ['SECRET_KEY'] = 'dummy-key-for-build'
+os.environ['SECRET_KEY'] = 'dummy'
 os.environ['ALLOWED_HOSTS'] = '*'
 os.environ['DEBUG'] = 'True'
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
@@ -48,40 +47,7 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8000/health/ || exit 1
 
-RUN echo '#!/bin/bash\n\
-set -e\n\
-\n\
-echo "🚀 Démarrage..."\n\
-python --version\n\
-python -c "import numpy; print(f\"✅ NumPy {numpy.__version__}\")"\n\
-\n\
-mkdir -p staticfiles\n\
-chmod -R 755 staticfiles\n\
-\n\
-if [ -n "$DATABASE_URL" ]; then\n\
-    DB_HOST=$(echo "$DATABASE_URL" | grep -oP "@\K[^:]+" || echo "")\n\
-    DB_PORT=$(echo "$DATABASE_URL" | grep -oP ":\K[0-9]+" || echo "")\n\
-    if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then\n\
-        echo "⏳ PostgreSQL $DB_HOST:$DB_PORT ..."\n\
-        for i in {1..30}; do\n\
-            nc -z $DB_HOST $DB_PORT 2>/dev/null && break\n\
-            sleep 1\n\
-        done\n\
-        echo "✅ PostgreSQL prêt"\n\
-    fi\n\
-fi\n\
-\n\
-python manage.py migrate --noinput\n\
-python manage.py collectstatic --noinput\n\
-\n\
-exec gunicorn mykarfour_app.wsgi:application \\\n\
-    --bind 0.0.0.0:8000 \\\n\
-    --workers 3 \\\n\
-    --access-logfile - \\\n\
-    --error-logfile - \\\n\
-    --timeout 120\n\
-' > /start.sh
+COPY start.sh .
+RUN chmod +x start.sh
 
-RUN chmod +x /start.sh
-
-ENTRYPOINT ["/start.sh"]
+ENTRYPOINT ["./start.sh"]
