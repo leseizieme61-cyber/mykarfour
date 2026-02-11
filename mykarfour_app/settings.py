@@ -6,20 +6,20 @@ import dj_database_url
 # =========================
 # 📁 BASE DIR
 # =========================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
 # 🌱 ENV
 # =========================
-
 env = environ.Env(
     DEBUG=(bool, False)
 )
 
+# Lit le fichier .env s'il existe (utile en local, mais en prod les variables sont dans l'environnement)
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
 # ======================
-# Sécurité proxy Dokploy
+# Sécurité proxy Dokploy/Traefik
 # ======================
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -27,29 +27,21 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # =========================
 # 🔐 SECURITY
 # =========================
-
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
-
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+# CORRECTION : Utilisation de env.list au lieu de os.getenv + split
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
-
-
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-# ======================
-# Cookies HTTPS
-# ======================
+# Sécurisation des cookies (HTTPS uniquement)
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 # =========================
 # 📦 APPS
 # =========================
-
 INSTALLED_APPS = [
     # Django
     "django.contrib.admin",
@@ -78,11 +70,9 @@ INSTALLED_APPS = [
 # =========================
 # 🧱 MIDDLEWARE
 # =========================
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -94,7 +84,6 @@ MIDDLEWARE = [
 # =========================
 # 🌐 URLS / TEMPLATES
 # =========================
-
 ROOT_URLCONF = "mykarfour_app.urls"
 
 TEMPLATES = [
@@ -119,7 +108,6 @@ ASGI_APPLICATION = "mykarfour_app.asgi.application"
 # =========================
 # 🗄️ DATABASE (POSTGRES)
 # =========================
-
 DATABASES = {
     "default": dj_database_url.config(
         default=env("DATABASE_URL"),
@@ -130,7 +118,6 @@ DATABASES = {
 # =========================
 # 🔐 AUTH
 # =========================
-
 AUTH_USER_MODEL = "utilisateurs.Utilisateur"
 
 LOGIN_URL = "connexion"
@@ -144,23 +131,19 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-
 # =========================
 # 🌍 I18N
 # =========================
-
 LANGUAGE_CODE = "fr-fr"
 TIME_ZONE = "Africa/Libreville"
-
 USE_I18N = True
 USE_TZ = True
 
 # =========================
 # 📁 STATIC / MEDIA
 # =========================
-
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / "staticfiles"   # Dans le conteneur = /staticfiles
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
@@ -170,8 +153,6 @@ WHITENOISE_MANIFEST_STRICT = False
 WHITENOISE_ALLOW_ALL_ORIGINS = True
 WHITENOISE_INDEX_FILE = True
 WHITENOISE_ROOT = BASE_DIR / 'staticfiles'
-
-# Pour les fichiers qui ne sont pas dans le manifest
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []
 
 MEDIA_URL = "/media/"
@@ -180,32 +161,32 @@ MEDIA_ROOT = BASE_DIR / "media"
 # =========================
 # 🎨 CRISPY
 # =========================
-
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # =========================
 # 🤖 OPENAI
 # =========================
-
 OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
 
 # =========================
 # ✉️ EMAIL
 # =========================
-
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
-EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# En production, utilisez SMTP. Pour éviter les erreurs, on peut temporairement passer en console
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
+    EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # =========================
 # 🔄 CHANNELS / REDIS
 # =========================
-
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -218,11 +199,9 @@ CHANNEL_LAYERS = {
 # =========================
 # 🌐 SITE
 # =========================
-
 SITE_URL = env("SITE_URL", default="http://localhost:8000")
 
 # =========================
 # 🆔 MISC
 # =========================
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
