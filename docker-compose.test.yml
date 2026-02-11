@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    image: jminkoh667/mykarfour_web:latest
+    container_name: mykarfour_test
+
+    env_file:
+      - .env.production
+
+    environment:
+      DJANGO_SETTINGS_MODULE: mykarfour_app.settings
+      PORT: "8000"
+      DEBUG: "True"
+
+    ports:
+      - "8000:8000"
+
+    # Commande de diagnostic
+    command: >
+      bash -c "
+        echo '=== 🚀 Lancement du diagnostic ===' &&
+        python debug-dokploy.py &&
+        echo '' &&
+        echo '=== 🦄 Démarrage de Gunicorn (mode debug) ===' &&
+        gunicorn mykarfour_app.wsgi:application 
+          --bind 0.0.0.0:8000 
+          --workers 1 
+          --timeout 120 
+          --log-level debug 
+          --access-logfile - 
+          --error-logfile -
+      "
+
+    restart: "no"
