@@ -26,6 +26,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt
 
+# Copier le fichier .env
+COPY .env /app/.env
+
 # =========================
 # Code application
 # =========================
