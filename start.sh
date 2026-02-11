@@ -1,43 +1,40 @@
 #!/bin/bash
 set -e
 
-HOST=${HOST:-0.0.0.0}
+# =========================
+# Configuration
+# =========================
 PORT=${PORT:-8000}
+HOST=${HOST:-0.0.0.0}
 
 # =========================
-# Attente PostgreSQL
+# Attendre PostgreSQL
 # =========================
-if [ -n "$DATABASE_URL" ]; then
-    DB_HOST=$(echo "$DATABASE_URL" | grep -oP "@\K[^:]+" || echo "")
-    DB_PORT=$(echo "$DATABASE_URL" | grep -oP ":[0-9]+(?=/)" | tr -d ":" || echo "")
-    if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
-        echo "⏳ En attente de PostgreSQL à $DB_HOST:$DB_PORT..."
-        for i in {1..30}; do
-            if nc -z $DB_HOST $DB_PORT 2>/dev/null; then
-                echo "✅ PostgreSQL prêt!"
-                break
-            fi
-            sleep 1
-        done
-    fi
+if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
+    echo "En attente de PostgreSQL à $DB_HOST:$DB_PORT..."
+    while ! nc -z $DB_HOST $DB_PORT; do
+        sleep 1
+    done
+    echo "PostgreSQL est prêt!"
 fi
 
 # =========================
 # Migrations Django
 # =========================
-echo "🔄 Application des migrations..."
+echo "Application des migrations..."
 python manage.py migrate --noinput
 
 # =========================
-# Collectstatic
+# Fichiers statiques
 # =========================
-echo "📁 Collecte des fichiers statiques..."
+echo "Collecte des fichiers statiques..."
 python manage.py collectstatic --noinput
 
 # =========================
-# Permissions
+# Vérifier les permissions
 # =========================
-chmod -R 755 /app/staticfiles /app/media
+chmod -R 755 /app/staticfiles
+chmod -R 755 /app/media
 
 # =========================
 # Superutilisateur (optionnel)
@@ -55,10 +52,10 @@ if not User.objects.filter(username='admin').exists():
     print('✅ Superutilisateur créé')
 else:
     print('✅ Superutilisateur existe déjà')
-" || echo "⚠️  Impossible de créer le superutilisateur"
+" || echo "⚠️ Impossible de créer le superutilisateur"
 
 # =========================
-# Lancement Daphne
+# Démarrer Daphne (ASGI)
 # =========================
 echo "🚀 Démarrage de Daphne sur $HOST:$PORT..."
 exec daphne -b $HOST -p $PORT mykarfour_app.asgi:application
