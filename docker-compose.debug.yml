@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    image: jminkoh667/mykarfour_web:latest
+    container_name: mykarfour_web_debug
+
+    env_file:
+      - .env.production
+
+    environment:
+      DJANGO_SETTINGS_MODULE: mykarfour_app.settings
+      PORT: "8000"
+
+    ports:
+      - "8000:8000"
+
+    # Commande pour forcer le démarrage visible
+    command: >
+      bash -c "
+        python manage.py check &&
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput &&
+        python manage.py runserver 0.0.0.0:8000
+      "
+
+    restart: unless-stopped
