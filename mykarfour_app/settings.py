@@ -34,7 +34,11 @@ DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = [
     "srv1344041.hstgr.cloud",
     "www.srv1344041.hstgr.cloud",
+    "127.0.0.1",
+    "localhost",
+    "*",  # juste pour test rapide, pas recommandé en prod
 ]
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://srv1344041.hstgr.cloud",
@@ -43,6 +47,10 @@ CSRF_TRUSTED_ORIGINS = [
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False
 
 # ==================================================
 # 📦 APPLICATIONS
