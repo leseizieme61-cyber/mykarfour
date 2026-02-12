@@ -19,22 +19,22 @@ if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
 fi
 
 # =========================
+# Créer les dossiers statiques et media
+# =========================
+mkdir -p /app/staticfiles /app/media
+chmod -R 755 /app/staticfiles /app/media
+
+# =========================
 # Migrations Django
 # =========================
 echo "Application des migrations..."
 python manage.py migrate --noinput
 
 # =========================
-# Fichiers statiques
+# Collecte des fichiers statiques
 # =========================
 echo "Collecte des fichiers statiques..."
 python manage.py collectstatic --noinput
-
-# =========================
-# Vérifier les permissions
-# =========================
-chmod -R 755 /app/staticfiles
-chmod -R 755 /app/media
 
 # =========================
 # Superutilisateur (optionnel)
@@ -58,4 +58,14 @@ else:
 # Démarrer Gunicorn (WSGI)
 # =========================
 echo "🚀 Démarrage de Gunicorn sur $HOST:$PORT..."
-exec gunicorn mykarfour_app.wsgi:application --bind $HOST:$PORT --workers 3 --timeout 120 --keepalive 5 --access-logfile - --error-logfile -
+
+# Si peu de RAM, réduire le nombre de workers à 1 ou 2
+WORKERS=${WORKERS:-3}
+
+exec gunicorn mykarfour_app.wsgi:application \
+  --bind 0.0.0.0:$PORT \
+  --workers $WORKERS \
+  --timeout 120 \
+  --keepalive 5 \
+  --access-logfile - \
+  --error-logfile -
