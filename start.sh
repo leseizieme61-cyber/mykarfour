@@ -66,6 +66,6 @@ exec gunicorn mykarfour_app.wsgi:application \
   --bind 0.0.0.0:$PORT \
   --workers $WORKERS \
   --timeout 120 \
-  --keepalive 5 \
+  --keep-alive 5 \
   --access-logfile - \
   --error-logfile -
